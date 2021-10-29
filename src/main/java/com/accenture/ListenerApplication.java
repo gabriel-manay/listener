@@ -29,6 +29,8 @@ public class ListenerApplication {
 	
 	@Autowired
 	TransactionDTO transactionDTO;
+
+	private int contador = 0;
 	
 	@Bean
     public Supplier<Message<?>> fileReader() {
@@ -37,7 +39,12 @@ public class ListenerApplication {
 				Transaction t = transactionDTO.getFirstElement();
 				
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se envia transaccion: {}", t.toString());
-				return MessageBuilder.withPayload(t)
+
+				contador++;
+
+				return MessageBuilder
+						.withPayload(t)
+						.setHeader("_id", contador)
 						.build();
 			}
 			
