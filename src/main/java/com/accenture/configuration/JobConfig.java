@@ -1,7 +1,9 @@
 package com.accenture.configuration;
 
-import java.net.MalformedURLException;
-
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import org.joda.time.DateTime;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -17,34 +19,72 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
 
 import com.accenture.entity.Transaction;
 
+import java.net.MalformedURLException;
+
 @Configuration
 public class JobConfig {
+
+    @Autowired
+    private AmazonS3 s3Client;
+
+    @Value("${application.bucket.name}")
+    private String bucketName;
+
+    @Value("${application.file.name}")
+    private String fileName;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 	
 	@Bean
     public ItemReader<Transaction> itemReader() {
         LineMapper<Transaction> transactionLineMapper = createTransactionLineMapper();
         
         UrlResource resource = null;
-		try {
-			resource = new UrlResource("https://transac.s3.amazonaws.com/transactions.txt");
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//renonbrar archivo
+        /*try{
+            resource = new UrlResource("https://"+ bucketName +".s3."+ region +".amazonaws.com/" + fileName);
+        } catch(MalformedURLException e){
+            e.printStackTrace();
+        }*/
+
+        //Sólo funciona si archivo/objeto a leer/descargar es público
+        resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+
+        //Genera URL "pública" cuya visibilidad expira al tiempo definido en el tercer parámetro
+        //resource = new UrlResource(s3Client.generatePresignedUrl(bucketName,fileName,new DateTime().plusMinutes(5).toDate(), HttpMethod.GET));
+        /*resource = new UrlResource(
+                s3Client.generatePresignedUrl(
+                        new GeneratePresignedUrlRequest(
+                                bucketName,fileName
+                        ).withExpiration(
+                                new DateTime().plusMinutes(10).toDate()
+                        )
+                ));*/
+
+
+        //renonbrar archivo
 		//mover archivo a directorio "procesados"
+        s3Client.copyObject(bucketName, fileName, bucketName,"procesados/copy-"+fileName);
+        //Archivo fue copiado y renombrando, chequear "moved" y "renamed" como true aquí
+
+
+        //Tratar de borrar el archivo a esta altura hace que deje
+        //de estar disponible para su lectura
+        //s3Client.deleteObject(bucketName,fileName);
         
     	return new FlatFileItemReaderBuilder<Transaction>()
     			.name("dataReader")
     			.resource(resource)
     			.lineMapper(transactionLineMapper)
+                .strict(false)
     			.build();
     }
 

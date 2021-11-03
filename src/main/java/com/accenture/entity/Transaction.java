@@ -8,10 +8,10 @@ import com.accenture.validation.TransactionCodeValidation;
 
 public class Transaction {
 	
-	private Integer transactionCode;	//1-2
-	private Integer transactionCodeQualifier;	// 3
-	private Integer transactionComponentSequenceNumber;	// 4
-	private String accountNumber;	// 5-20
+	private Integer transactionCode=99;	//1-2
+	private Integer transactionCodeQualifier=9;	// 3
+	private Integer transactionComponentSequenceNumber=9;	// 4
+	private String accountNumber="0000000000000000";	// 5-20
 	
 	private List<IValidation> validations = new ArrayList<IValidation>();
 	

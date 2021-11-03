@@ -47,9 +47,7 @@ public class ListenerApplication {
 						.setHeader("_id", contador)
 						.build();
 			}
-			
-			return MessageBuilder.withPayload("no hay mensajes").build();
-			
+			return MessageBuilder.withPayload(new Transaction()).build();
 		};
 	}
 
