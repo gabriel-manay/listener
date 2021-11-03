@@ -2,6 +2,7 @@ package com.accenture;
 
 import java.util.function.Supplier;
 
+import com.accenture.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -30,6 +31,9 @@ public class ListenerApplication {
 	@Autowired
 	TransactionDTO transactionDTO;
 
+	@Autowired
+	LogService service;
+
 	private int contador = 0;
 	
 	@Bean
@@ -37,7 +41,7 @@ public class ListenerApplication {
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
 				Transaction t = transactionDTO.getFirstElement();
-				
+				LOGGER.info("Listado",service.recuperarLogs());
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se envia transaccion: {}", t.toString());
 
 				contador++;
