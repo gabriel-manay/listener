@@ -2,6 +2,7 @@ package com.accenture;
 
 import java.util.function.Supplier;
 
+import com.accenture.entity.Log;
 import com.accenture.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +39,15 @@ public class ListenerApplication {
 	
 	@Bean
     public Supplier<Message<?>> fileReader() {
+	//	service.guardarLog();
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
 				Transaction t = transactionDTO.getFirstElement();
-				LOGGER.info("Listado",service.recuperarLogs());
+				LOGGER.info("Listado"+service.recuperarLogs());
+				for(Log log: service.recuperarLogs() ){
+					LOGGER.info(log.toString());
+
+				}
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se envia transaccion: {}", t.toString());
 
 				contador++;

@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface LogService {
     List<Log> recuperarLogs();
+    void guardarLog();
+
 }

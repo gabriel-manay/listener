@@ -11,7 +11,7 @@ cloud:
 spring:
   datasource1:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://aurora57.cluster-cfkwcska1oxw.us-east-1.rds.amazonaws.com:3306/casouso
+    url: jdbc:mysql://aurora57.cluster-cfkwcska1oxw.us-east-1.rds.amazonaws.com:3306/casouso?autoReconnect=true&useSSL=false
     username: admin
     password: admin123
   datasource:
@@ -25,6 +25,11 @@ spring:
     change-log: classpath:/db/changelog/db.changelog.xml
   jpa:
      show-sql: true
+     hibernate:
+       ddl-auto: update
+       naming:
+         implicity-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
   cloud:
     stream:
       bindings:
@@ -35,8 +40,7 @@ spring:
 #---
 application:
   file:
-      name: nombreDelArchivo
+    name: nombreDelArchivo
   bucket:
     name: nombreDelBucket
-
 

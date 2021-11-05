@@ -18,6 +18,20 @@ public class Log implements Serializable {
     private Boolean fileuploaded;
     private Boolean dumpcreated;
 
+    public Log() {
+    }
+
+    public Log( Boolean renamed, Boolean moved, int linescount, int linesvalidated, Boolean filecreated, Boolean fileuploaded, Boolean dumpcreated) {
+
+        this.renamed = renamed;
+        this.moved = moved;
+        this.linescount = linescount;
+        this.linesvalidated = linesvalidated;
+        this.filecreated = filecreated;
+        this.fileuploaded = fileuploaded;
+        this.dumpcreated = dumpcreated;
+    }
+
     public int getClave() {
         return clave;
     }
@@ -82,7 +96,19 @@ public class Log implements Serializable {
         this.dumpcreated = dumpcreated;
     }
 
-
+    @Override
+    public String toString() {
+        return "Log{" +
+                "clave=" + clave +
+                ", renamed=" + renamed +
+                ", moved=" + moved +
+                ", linescount=" + linescount +
+                ", linesvalidated=" + linesvalidated +
+                ", filecreated=" + filecreated +
+                ", fileuploaded=" + fileuploaded +
+                ", dumpcreated=" + dumpcreated +
+                '}';
+    }
 }
 
 

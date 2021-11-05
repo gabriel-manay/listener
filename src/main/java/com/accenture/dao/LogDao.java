@@ -7,5 +7,6 @@ import java.util.List;
 public interface LogDao {
 
     List<Log> devolverLogs();
+    void guardarLog();
 }
 

@@ -17,6 +17,13 @@ public class LogDaoImpl implements LogDao {
     public List<Log> devolverLogs() {
 
         return log.findAll();
+
+    }
+
+    @Override
+    public void guardarLog(){
+
+        log.save(new Log(true,true,10,0,false,false,false));
     }
 
 }
