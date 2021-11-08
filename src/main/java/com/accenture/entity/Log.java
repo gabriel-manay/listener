@@ -1,16 +1,24 @@
 package com.accenture.entity;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 @Entity
-@Table(name="logs")
+@Table(name="transaction_log")
 public class Log implements Serializable {
 
-    @Id
+	private static final long serialVersionUID = 1L;
+
+	@Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private int clave;//clave primaria
-    private Boolean renamed;
+    private Long id;
+    
+	private Boolean renamed;
     private Boolean moved;
     private int linescount;
     private int linesvalidated;
@@ -19,6 +27,8 @@ public class Log implements Serializable {
     private Boolean dumpcreated;
 
     public Log() {
+    	renamed = true;
+    	linescount = 100;
     }
 
     public Log( Boolean renamed, Boolean moved, int linescount, int linesvalidated, Boolean filecreated, Boolean fileuploaded, Boolean dumpcreated) {
@@ -32,15 +42,15 @@ public class Log implements Serializable {
         this.dumpcreated = dumpcreated;
     }
 
-    public int getClave() {
-        return clave;
-    }
+    public Long getId() {
+		return id;
+	}
 
-    public void setClave(int clave) {
-        this.clave = clave;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Boolean getRenamed() {
+	public Boolean getRenamed() {
         return renamed;
     }
 
@@ -99,7 +109,6 @@ public class Log implements Serializable {
     @Override
     public String toString() {
         return "Log{" +
-                "clave=" + clave +
                 ", renamed=" + renamed +
                 ", moved=" + moved +
                 ", linescount=" + linescount +

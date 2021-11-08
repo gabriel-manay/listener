@@ -1,9 +1,7 @@
 package com.accenture.configuration;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import org.joda.time.DateTime;
+import java.net.MalformedURLException;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -19,19 +17,15 @@ import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FixedLengthTokenizer;
 import org.springframework.batch.item.file.transform.LineTokenizer;
 import org.springframework.batch.item.file.transform.Range;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
 
 import com.accenture.entity.Transaction;
 
-import java.net.MalformedURLException;
-
 @Configuration
 public class JobConfig {
-
+/*
     @Autowired
     private AmazonS3 s3Client;
 
@@ -43,20 +37,20 @@ public class JobConfig {
 
     @Value("${cloud.aws.region.static}")
     private String region;
-	
+	*/
 	@Bean
     public ItemReader<Transaction> itemReader() {
         LineMapper<Transaction> transactionLineMapper = createTransactionLineMapper();
         
         UrlResource resource = null;
-        /*try{
-            resource = new UrlResource("https://"+ bucketName +".s3."+ region +".amazonaws.com/" + fileName);
+        try{
+            resource = new UrlResource("https://transac.s3.amazonaws.com/transactions.txt");
         } catch(MalformedURLException e){
             e.printStackTrace();
-        }*/
+        }
 
         //Sólo funciona si archivo/objeto a leer/descargar es público
-        resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+        //resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
 
         //Genera URL "pública" cuya visibilidad expira al tiempo definido en el tercer parámetro
         //resource = new UrlResource(s3Client.generatePresignedUrl(bucketName,fileName,new DateTime().plusMinutes(5).toDate(), HttpMethod.GET));
@@ -72,7 +66,7 @@ public class JobConfig {
 
         //renonbrar archivo
 		//mover archivo a directorio "procesados"
-        s3Client.copyObject(bucketName, fileName, bucketName,"procesados/copy-"+fileName);
+        //s3Client.copyObject(bucketName, fileName, bucketName,"procesados/copy-"+fileName);
         //Archivo fue copiado y renombrando, chequear "moved" y "renamed" como true aquí
 
 
