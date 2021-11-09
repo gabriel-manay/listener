@@ -2,6 +2,8 @@ package com.accenture;
 
 import java.util.function.Supplier;
 
+import com.accenture.entity.Log;
+import com.accenture.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -39,6 +41,8 @@ public class ListenerApplication {
 	@Bean
     public Supplier<Message<?>> fileReader() {
 	//	service.guardarLog();
+		logService.save(new Log(true, true, 55,145,true, true, true));
+
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
 				Transaction t = transactionDTO.getFirstElement();
@@ -51,9 +55,12 @@ public class ListenerApplication {
 				}
 				*/
 				
+
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
 				logService.registerFileProcess();
-				
+
+				//probando si recupera registros de BBDD
+				LOGGER.info("Log : " + logService.findAll());
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se envia transaccion: {}", t.toString());
 
 				contador++;

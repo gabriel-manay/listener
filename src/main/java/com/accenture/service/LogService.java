@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.accenture.entity.Log;
 import com.accenture.repository.ILogRepository;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class LogService implements ILogService {
@@ -17,6 +19,9 @@ public class LogService implements ILogService {
     public void save(Log log) {
     	logRepository.save(log);
     }
+
+	public Iterable<Log> findAll(){
+		return logRepository.findAll(); }
 
 	@Override
 	public void registerFileProcess() {

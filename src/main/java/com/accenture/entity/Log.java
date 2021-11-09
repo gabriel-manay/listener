@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="transaction_log")
+@Table(name="logs")
 public class Log implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -4,8 +4,9 @@ import com.accenture.entity.Log;
 
 public interface ILogService {
 	
-	public void save(Log log);
-	public void registerFileProcess();
+	 void save(Log log);
+     void registerFileProcess();
+	 Iterable<Log> findAll();
 //    List<Log> recuperarLogs();
 //    void guardarLog();
 
