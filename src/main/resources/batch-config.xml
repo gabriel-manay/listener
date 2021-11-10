@@ -31,7 +31,7 @@ http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
           class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
         <property name="dataSource" ref="dataSource1"/>
         <property name="transactionManager" ref="transactionManager"/>
-        <property name="databaseType" value="mySql"/>
+        <property name="databaseType" value="mysql"/>
     </bean>
     <bean id="jobLauncher"
           class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
@@ -41,15 +41,19 @@ http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
         <property name="resource" value="https://transac2.s3.amazonaws.com/transactions.txt"/>
         <property name="lineMapper">
             <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
-                <property name="fieldSetMapper">
-                    <bean class="com.accenture.service.LogService"/>
-                </property>
+                    <property name="fieldSetMapper">
+                        <bean class="com.accenture.service.LogService"/>
+                    </property>
                 <property name="lineTokenizer">
                     <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
                         <property name="names"
                                   value="transactionCode, transactionCodeQualifier,transactionComponentSequenceNumber, accountNumber"/>
                         <property name="columns" value="1-2,3,4,5-20"/>
+
                     </bean>
+                </property>
+                <property name="fieldSetMapper">
+                    <bean class="com.jcg.spring.batch.ReportFieldSetMapper" />
                 </property>
             </bean>
         </property>
