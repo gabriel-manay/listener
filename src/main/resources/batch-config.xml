@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation=" http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+http://www.springframework.org/schema/batch
+http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
+
+    <!-- connect to mySql database -->
+    <bean id="dataSource1" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3307/demo"/>
+        <property name="username" value="root"/>
+        <property name="password" value="ar978jmcba"/>
+    </bean>
+    <!--    <bean id="dataSource2" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+            <property name="driverClassName" value="oracle.jdbc.OracleDriver"></property>
+            <property name="url" value="*******"></property>
+            <property name="password" value="*****"></property>
+            <property name="username" value="*****"></property>
+        </bean>-->
+
+    <!-- stored job-meta in memory -->
+    <!-- <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager" /> </bean> -->
+
+    <!-- stored job-meta in database -->
+    <bean id="jobRepository"
+          class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+        <property name="dataSource" ref="dataSource1"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="databaseType" value="mySql"/>
+    </bean>
+    <bean id="jobLauncher"
+          class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository"/>
+    </bean>
+    <bean id="itemReader" class="org.springframework.batch.item.file.FlatFileItemReader" scope="step">
+        <property name="resource" value="https://transac2.s3.amazonaws.com/transactions.txt"/>
+        <property name="lineMapper">
+            <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+                <property name="fieldSetMapper">
+                    <bean class="com.accenture.service.LogService"/>
+                </property>
+                <property name="lineTokenizer">
+                    <bean class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                        <property name="names"
+                                  value="transactionCode, transactionCodeQualifier,transactionComponentSequenceNumber, accountNumber"/>
+                        <property name="columns" value="1-2,3,4,5-20"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <bean id="itemWriter" class="org.springframework.batch.item.xml.StaxEventItemWriter">
+        <property name="resource" value="file:xml/transactions.xml"/>
+        <property name="rootTagName" value="transactionRecord"/>
+        <property name="marshaller">
+            <bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+                <property name="classesToBeBound">
+                    <list>
+                        <value>com.accenture.entity.Transaction</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+    <batch:job id="readingJob">
+        <batch:step id="step1">
+            <batch:tasklet transaction-manager="transactionManager">
+                <batch:chunk reader="itemReader" writer="itemWriter" commit-interval="1"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+</beans>

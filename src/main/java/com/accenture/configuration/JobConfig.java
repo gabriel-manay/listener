@@ -23,7 +23,7 @@ import org.springframework.core.io.UrlResource;
 
 import com.accenture.entity.Transaction;
 
-@Configuration
+//@Configuration
 public class JobConfig {
 /*
     @Autowired
