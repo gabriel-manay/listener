@@ -46,14 +46,14 @@ public class JobConfig {
         LineMapper<Transaction> transactionLineMapper = createTransactionLineMapper();
         
         UrlResource resource = null;
-/*        try{
-            resource = new UrlResource("https://transac2.s3.amazonaws.com/transactions.txt");
+       try{
+            resource = new UrlResource("fullTransactionsTCR00.txt");
         } catch(MalformedURLException e){
             e.printStackTrace();
-        }*/
+        }
 
         //Sólo funciona si archivo/objeto a leer/descargar es público
-        resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+      //  resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
 
         //Genera URL "pública" cuya visibilidad expira al tiempo definido en el tercer parámetro
         //resource = new UrlResource(s3Client.generatePresignedUrl(bucketName,fileName,new DateTime().plusMinutes(5).toDate(), HttpMethod.GET));

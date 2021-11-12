@@ -2,32 +2,32 @@ package com.accenture.entity;
 
 public class Transaction {
 	
-	private Integer transactionCode;	//1-2
-	private Integer transactionCodeQualifier;	// 3
-	private Integer transactionComponentSequenceNumber;	// 4
+	private String transactionCode;	//1-2
+	private String transactionCodeQualifier;	// 3
+	private String transactionComponentSequenceNumber;	// 4
 	private String accountNumber;	// 5-20
-	private Integer accountNumberExtension; //21-23
+	private String accountNumberExtension; //21-23
 	private String floorLimitIndicator; //24
 	private String crbExceptionFileIndicator; //25
 	private String PCASIndicator; //26
-	private Integer acquirerReferenceNumber; //27-49
-	private Integer acquirersBusinessID; //50-57
-	private Integer purchaseDate; //58-61
-	private Integer destinationAmount; //62-73
+	private String acquirerReferenceNumber; //27-49
+	private String acquirersBusinessID; //50-57
+	private String purchaseDate; //58-61
+	private String destinationAmount; //62-73
 	private String destinationCurrencyCode; //74-76
-	private Integer sourceAmount; //77-88
+	private String sourceAmount; //77-88
 	private String sourceCurrencyCode; //89-91
 	private String merchantName; //92-116
 	private String merchantCity; //117-129
 	private String merchantCountryCode; //130-132
-	private Integer merchantCategoryCode; //133-136
-	private Integer merchantZIPCode; // 137-141
+	private String merchantCategoryCode; //133-136
+	private String merchantZIPCode; // 137-141
 	private String merchantStateProvinceCode; //142-144
 	private String requestedPaymentService; //145
 	private String numberOfPaymentForms; //146
-	private Integer usageCode; //147
-	private Integer reasonCode; //148-149
-	private Integer settlementFlag; // 150
+	private String usageCode; //147
+	private String reasonCode; //148-149
+	private String settlementFlag; // 150
 	private String authorizationCharacteristicsIndicator; //151
 	private String authorizationCode; //125-157
 	private String POSTerminalCapability; //158
@@ -35,45 +35,46 @@ public class Transaction {
 	private String cardholderIDMethod; //160
 	private String collectionOnlyFlag; //161
 	private String POSEntryMode; //162-163
-	private Integer centralProcessingDate; //164-167
+	private String centralProcessingDate; //164-167
 	private String reimbursementAttribute; //168
 
-	
-	
-	public Transaction() {
-	}
-	
-
-	public Integer getTransactionCode() {
+	public String getTransactionCode() {
 		return transactionCode;
 	}
-	public void setTransactionCode(Integer transactionCode) {
+
+	public void setTransactionCode(String transactionCode) {
 		this.transactionCode = transactionCode;
 	}
-	public Integer getTransactionCodeQualifier() {
+
+	public String getTransactionCodeQualifier() {
 		return transactionCodeQualifier;
 	}
-	public void setTransactionCodeQualifier(Integer transactionCodeQualifier) {
+
+	public void setTransactionCodeQualifier(String transactionCodeQualifier) {
 		this.transactionCodeQualifier = transactionCodeQualifier;
 	}
-	public Integer getTransactionComponentSequenceNumber() {
+
+	public String getTransactionComponentSequenceNumber() {
 		return transactionComponentSequenceNumber;
 	}
-	public void setTransactionComponentSequenceNumber(Integer transactionComponentSequenceNumber) {
+
+	public void setTransactionComponentSequenceNumber(String transactionComponentSequenceNumber) {
 		this.transactionComponentSequenceNumber = transactionComponentSequenceNumber;
 	}
+
 	public String getAccountNumber() {
 		return accountNumber;
 	}
+
 	public void setAccountNumber(String accountNumber) {
 		this.accountNumber = accountNumber;
 	}
 
-	public Integer getAccountNumberExtension() {
+	public String getAccountNumberExtension() {
 		return accountNumberExtension;
 	}
 
-	public void setAccountNumberExtension(Integer accountNumberExtension) {
+	public void setAccountNumberExtension(String accountNumberExtension) {
 		this.accountNumberExtension = accountNumberExtension;
 	}
 
@@ -101,35 +102,35 @@ public class Transaction {
 		this.PCASIndicator = PCASIndicator;
 	}
 
-	public Integer getAcquirerReferenceNumber() {
+	public String getAcquirerReferenceNumber() {
 		return acquirerReferenceNumber;
 	}
 
-	public void setAcquirerReferenceNumber(Integer acquirerReferenceNumber) {
+	public void setAcquirerReferenceNumber(String acquirerReferenceNumber) {
 		this.acquirerReferenceNumber = acquirerReferenceNumber;
 	}
 
-	public Integer getAcquirersBusinessID() {
+	public String getAcquirersBusinessID() {
 		return acquirersBusinessID;
 	}
 
-	public void setAcquirersBusinessID(Integer acquirersBusinessID) {
+	public void setAcquirersBusinessID(String acquirersBusinessID) {
 		this.acquirersBusinessID = acquirersBusinessID;
 	}
 
-	public Integer getPurchaseDate() {
+	public String getPurchaseDate() {
 		return purchaseDate;
 	}
 
-	public void setPurchaseDate(Integer purchaseDate) {
+	public void setPurchaseDate(String purchaseDate) {
 		this.purchaseDate = purchaseDate;
 	}
 
-	public Integer getDestinationAmount() {
+	public String getDestinationAmount() {
 		return destinationAmount;
 	}
 
-	public void setDestinationAmount(Integer destinationAmount) {
+	public void setDestinationAmount(String destinationAmount) {
 		this.destinationAmount = destinationAmount;
 	}
 
@@ -141,11 +142,11 @@ public class Transaction {
 		this.destinationCurrencyCode = destinationCurrencyCode;
 	}
 
-	public Integer getSourceAmount() {
+	public String getSourceAmount() {
 		return sourceAmount;
 	}
 
-	public void setSourceAmount(Integer sourceAmount) {
+	public void setSourceAmount(String sourceAmount) {
 		this.sourceAmount = sourceAmount;
 	}
 
@@ -181,19 +182,19 @@ public class Transaction {
 		this.merchantCountryCode = merchantCountryCode;
 	}
 
-	public Integer getMerchantCategoryCode() {
+	public String getMerchantCategoryCode() {
 		return merchantCategoryCode;
 	}
 
-	public void setMerchantCategoryCode(Integer merchantCategoryCode) {
+	public void setMerchantCategoryCode(String merchantCategoryCode) {
 		this.merchantCategoryCode = merchantCategoryCode;
 	}
 
-	public Integer getMerchantZIPCode() {
+	public String getMerchantZIPCode() {
 		return merchantZIPCode;
 	}
 
-	public void setMerchantZIPCode(Integer merchantZIPCode) {
+	public void setMerchantZIPCode(String merchantZIPCode) {
 		this.merchantZIPCode = merchantZIPCode;
 	}
 
@@ -221,27 +222,27 @@ public class Transaction {
 		this.numberOfPaymentForms = numberOfPaymentForms;
 	}
 
-	public Integer getUsageCode() {
+	public String getUsageCode() {
 		return usageCode;
 	}
 
-	public void setUsageCode(Integer usageCode) {
+	public void setUsageCode(String usageCode) {
 		this.usageCode = usageCode;
 	}
 
-	public Integer getReasonCode() {
+	public String getReasonCode() {
 		return reasonCode;
 	}
 
-	public void setReasonCode(Integer reasonCode) {
+	public void setReasonCode(String reasonCode) {
 		this.reasonCode = reasonCode;
 	}
 
-	public Integer getSettlementFlag() {
+	public String getSettlementFlag() {
 		return settlementFlag;
 	}
 
-	public void setSettlementFlag(Integer settlementFlag) {
+	public void setSettlementFlag(String settlementFlag) {
 		this.settlementFlag = settlementFlag;
 	}
 
@@ -301,11 +302,11 @@ public class Transaction {
 		this.POSEntryMode = POSEntryMode;
 	}
 
-	public Integer getCentralProcessingDate() {
+	public String getCentralProcessingDate() {
 		return centralProcessingDate;
 	}
 
-	public void setCentralProcessingDate(Integer centralProcessingDate) {
+	public void setCentralProcessingDate(String centralProcessingDate) {
 		this.centralProcessingDate = centralProcessingDate;
 	}
 
@@ -316,6 +317,10 @@ public class Transaction {
 	public void setReimbursementAttribute(String reimbursementAttribute) {
 		this.reimbursementAttribute = reimbursementAttribute;
 	}
+
+	public Transaction() {
+	}
+	
 
 	@Override
 	public String toString() {

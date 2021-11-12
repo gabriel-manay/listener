@@ -41,9 +41,9 @@ public class ListenerApplication {
     public Supplier<Message<?>> fileReader() {
 
 		LOGGER.info("###########		Se registra log");
-		logService.save(new Log(true, true, 55,145,true, true, true));
+/*		logService.save(new Log(true, true, 55,145,true, true, true));
 		
-		Log log = new Log();
+		Log log = new Log();*/
 
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
