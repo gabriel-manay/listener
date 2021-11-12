@@ -42,6 +42,8 @@ public class ListenerApplication {
 
 		LOGGER.info("###########		Se registra log");
 		logService.save(new Log(true, true, 55,145,true, true, true));
+		
+		Log log = new Log();
 
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
@@ -58,6 +60,7 @@ public class ListenerApplication {
 
 				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
 				logService.registerFileProcess();
+			
 
 				//probando si recupera registros de BBDD
 				LOGGER.info("Log : " + logService.findAll());
