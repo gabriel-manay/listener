@@ -99,9 +99,17 @@ public class JobConfig {
     
     private LineTokenizer tradeRecordTokenizer() {
         FixedLengthTokenizer rc = new FixedLengthTokenizer();
-        String[] names = new String[] { "transactionCode", "transactionCodeQualifier", "transactionComponentSequenceNumber", "accountNumber" };
+        String[] names = new String[] { "transactionCode", "transactionCodeQualifier", "transactionComponentSequenceNumber", "accountNumber", "accountNumberExtension",
+                                        "floorLimitIndicator", "crbExceptionFileIndicator", "PCASIndicator", "acquirerReferenceNumber", "acquirersBusinessID",
+                                        "purchaseDate", "destinationAmount", "destinationCurrencyCode", "sourceAmount", "sourceCurrencyCode", "merchantName", "merchantCity",
+                                        "merchantCountryCode", "merchantCategoryCode", "merchantZIPCode", "merchantStateProvinceCode", "requestedPaymentService",
+                                        "numberOfPaymentForms", "usageCode", "reasonCode", "settlementFlag", "authorizationCharacteristicsIndicator", "authorizationCode",
+                                        "POSTerminalCapability", "reserved", "cardholderIDMethod", "collectionOnlyFlag", "POSEntryMode", "centralProcessingDate", "reimbursementAttribute"};
         rc.setNames(names);
-        Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 20) };
+        Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 20), new Range(21, 23), new Range(24), new Range(25), new Range(26), new Range(27, 49),
+                                       new Range(50, 57), new Range(58, 61), new Range(62, 73), new Range(74, 76), new Range(77, 88), new Range(89, 91), new Range(92, 116), new Range(117, 129), new Range(130, 132),
+                                       new Range(133, 136), new Range(137, 141), new Range(142, 144), new Range(145), new Range(146), new Range(147), new Range(148, 149), new Range(150),
+                                       new Range(151), new Range(152, 157), new Range(158), new Range(159), new Range(160), new Range(161), new Range(162, 163), new Range(164, 167), new Range(168)};
         rc.setColumns(ranges);
         return rc;
     }
