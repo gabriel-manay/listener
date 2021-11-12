@@ -9,13 +9,14 @@ cloud:
       auto: false
 
 spring:
-  datasource1:
+  datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/demo
+    url: jdbc:mysql://mysql:3306/demo
     username: root
-    password: PASSWORD
+    password: rootpw
   batch:
-    initialize-schema: NEVER
+    jdbc:
+      initialize-schema: NEVER
     job.enabled: false
   liquibase:
     change-log: classpath:/db/changelog/db.changelog.xml

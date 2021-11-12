@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.accenture.entity.Log;
 import com.accenture.repository.ILogRepository;
 
-import java.util.List;
-
 @Service
 @Transactional
 public class LogService implements ILogService {

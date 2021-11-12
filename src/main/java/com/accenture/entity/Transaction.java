@@ -1,11 +1,5 @@
 package com.accenture.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.accenture.validation.IValidation;
-import com.accenture.validation.TransactionCodeValidation;
-
 public class Transaction {
 	
 	private Integer transactionCode=99;	//1-2
@@ -13,10 +7,8 @@ public class Transaction {
 	private Integer transactionComponentSequenceNumber=9;	// 4
 	private String accountNumber="0000000000000000";	// 5-20
 	
-	private List<IValidation> validations = new ArrayList<IValidation>();
 	
 	public Transaction() {
-		validations.add(new TransactionCodeValidation());		
 	}
 	
 
@@ -53,15 +45,6 @@ public class Transaction {
 				+ transactionComponentSequenceNumber + ", accountNumber=" + accountNumber + "]";
 	}
 	
-	public boolean validate() {
-		boolean result = true;
-		
-		for (IValidation iValidation : validations) {
-			result = iValidation.validate();
-		}
-		
-		return result;
-	}
 	
 
 }

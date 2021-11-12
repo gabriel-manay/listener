@@ -2,8 +2,6 @@ package com.accenture;
 
 import java.util.function.Supplier;
 
-import com.accenture.entity.Log;
-import com.accenture.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -15,6 +13,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.accenture.entity.Log;
 import com.accenture.entity.Transaction;
 import com.accenture.entity.TransactionDTO;
 import com.accenture.service.ILogService;
@@ -40,7 +39,8 @@ public class ListenerApplication {
 	
 	@Bean
     public Supplier<Message<?>> fileReader() {
-	//	service.guardarLog();
+
+		LOGGER.info("###########		Se registra log");
 		logService.save(new Log(true, true, 55,145,true, true, true));
 
 		return () -> {
