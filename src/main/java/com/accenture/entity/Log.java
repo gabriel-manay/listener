@@ -1,6 +1,7 @@
 package com.accenture.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="logs")
+@Table(name="log")
 public class Log implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -18,31 +19,54 @@ public class Log implements Serializable {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     
+	private String fileName;
+	private Date processDate;
 	private Boolean renamed;
     private Boolean moved;
-    private int linescount;
+    private long fileLength;
     private int linesvalidated;
     private Boolean filecreated;
     private Boolean fileuploaded;
     private Boolean dumpcreated;
 
     public Log() {
-    	renamed = true;
-    	linescount = 100;
+    	renamed = false;
+    	moved = false;
+    	filecreated = false;
+    	fileuploaded = false;
+    	dumpcreated = false;
+    	fileLength = 0;
+    	linesvalidated = 0;
     }
 
     public Log( Boolean renamed, Boolean moved, int linescount, int linesvalidated, Boolean filecreated, Boolean fileuploaded, Boolean dumpcreated) {
 
         this.renamed = renamed;
         this.moved = moved;
-        this.linescount = linescount;
+        this.fileLength = linescount;
         this.linesvalidated = linesvalidated;
         this.filecreated = filecreated;
         this.fileuploaded = fileuploaded;
         this.dumpcreated = dumpcreated;
     }
+    
+    public String getFileName() {
+		return fileName;
+	}
 
-    public Long getId() {
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public Date getProcessDate() {
+		return processDate;
+	}
+
+	public void setProcessDate(Date processDate) {
+		this.processDate = processDate;
+	}
+
+	public Long getId() {
 		return id;
 	}
 
@@ -66,12 +90,12 @@ public class Log implements Serializable {
         this.moved = moved;
     }
 
-    public int getLinescount() {
-        return linescount;
+    public long getFileLength() {
+        return fileLength;
     }
 
-    public void setLinescount(int linescount) {
-        this.linescount = linescount;
+    public void setFileLength(long linescount) {
+        this.fileLength = linescount;
     }
 
     public int getLinesvalidated() {
@@ -111,7 +135,7 @@ public class Log implements Serializable {
         return "Log{" +
                 ", renamed=" + renamed +
                 ", moved=" + moved +
-                ", linescount=" + linescount +
+                ", linescount=" + fileLength +
                 ", linesvalidated=" + linesvalidated +
                 ", filecreated=" + filecreated +
                 ", fileuploaded=" + fileuploaded +

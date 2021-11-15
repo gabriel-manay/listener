@@ -13,10 +13,8 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.accenture.entity.Log;
 import com.accenture.entity.Transaction;
 import com.accenture.entity.TransactionDTO;
-import com.accenture.service.ILogService;
 
 @SpringBootApplication
 @EnableBatchProcessing
@@ -32,39 +30,16 @@ public class ListenerApplication {
 	@Autowired
 	TransactionDTO transactionDTO;
 
-	@Autowired
-	ILogService logService;
-
 	private int contador = 0;
 	
 	@Bean
-    public Supplier<Message<?>> fileReader() {
-
-		LOGGER.info("###########		Se registra log");
-/*		logService.save(new Log(true, true, 55,145,true, true, true));
-		
-		Log log = new Log();*/
+    public Supplier<Message<Transaction>> fileReader() {
 
 		return () -> {
 			if (transactionDTO.getTransactions().size() > 0) {
 				Transaction t = transactionDTO.getFirstElement();
 				
-				/*
-				LOGGER.info("Listado"+service.recuperarLogs());
-				for(Log log: service.recuperarLogs() ){
-					LOGGER.info(log.toString());
-
-				}
-				*/
-				
-
-				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
-				logService.registerFileProcess();
-			
-
-				//probando si recupera registros de BBDD
-				LOGGER.info("Log : " + logService.findAll());
-				LOGGER.info(">>>>>>>>>>>>>>>>>>		Se envia transaccion: {}", t.toString());
+				LOGGER.info(">>>> transaccion: {}",t.toString());
 
 				contador++;
 

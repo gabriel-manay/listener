@@ -11,9 +11,9 @@ cloud:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: conexionBD
-    username: user
-    password: pwd
+    url: jdbc:mysql://mysql:3306/demo
+    username: root
+    password: rootpw
   batch:
     jdbc:
       initialize-schema: NEVER
