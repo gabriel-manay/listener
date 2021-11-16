@@ -35,7 +35,7 @@ public class SpringBatchExampleJobLauncher {
         this.jobLauncher = jobLauncher;
     }
 
-    @Scheduled(cron = "0/30 * * * * *")
+    @Scheduled(cron = "0/60 * * * * *")
     public void runSpringBatchExampleJob() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         LOGGER.info("***********	INICIO DE JOB	**************");
 

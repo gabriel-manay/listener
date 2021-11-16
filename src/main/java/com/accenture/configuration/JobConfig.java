@@ -2,6 +2,8 @@ package com.accenture.configuration;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,54 +54,31 @@ public class JobConfig {
 	ILogService logService;
 
 	@Bean
-	public ItemReader<Transaction> itemReader() {
+	public ItemReader<Transaction> itemReader() throws MalformedURLException {
 
 		LineMapper<Transaction> transactionLineMapper = createTransactionLineMapper();
 
 		UrlResource resource = null;
 		Log log = null;
 
-		try {
+		resource = new UrlResource("https://transac2.s3.amazonaws.com/TCR00E.txt");
 
-			resource = new UrlResource("https://transac2.s3.amazonaws.com/fullTransactionsTCR00.txt");
+		//LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
+		//log = logService.registerFileProcess(resource.getFilename(), resource.contentLength());
 
-			LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
-			log = logService.registerFileProcess(resource.getFilename(), resource.contentLength());
+		//Sólo funciona si archivo/objeto a leer/descargar es público
+		//resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
 
-			// Sólo funciona si archivo/objeto a leer/descargar es público
-			// resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+		// renombrar archivo y mover archivo a directorio "procesados"
+		//String pattern = "yyyyMMdd";
+		//SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+		//String date = simpleDateFormat.format(new Date());
+		//s3Client.copyObject(bucketName, fileName, bucketName, "procesados/"+ date + "-" +fileName);
 
-			// Genera URL "pública" cuya visibilidad expira al tiempo definido en el tercer
-			// parámetro
-			// resource = new
-			// UrlResource(s3Client.generatePresignedUrl(bucketName,fileName,new
-			// DateTime().plusMinutes(5).toDate(), HttpMethod.GET));
-			/*
-			 * resource = new UrlResource( s3Client.generatePresignedUrl( new
-			 * GeneratePresignedUrlRequest( bucketName,fileName ).withExpiration( new
-			 * DateTime().plusMinutes(10).toDate() ) ));
-			 */
+		//logService.setAsMoved(log);
 
-			// renombrar archivo y mover archivo a directorio "procesados"
-			// s3Client.copyObject(bucketName, fileName, bucketName, "procesados/copy-" +
-			// fileName);
-			// Tratar de borrar el archivo a esta altura hace que deje de estar disponible
-			// para su lectura
-			// s3Client.deleteObject(bucketName, fileName);
-
-			logService.setAsMoved(log);
-
-			return new FlatFileItemReaderBuilder<Transaction>().name("dataReader").resource(resource)
-					.lineMapper(transactionLineMapper).strict(false).build();
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
+		return new FlatFileItemReaderBuilder<Transaction>().name("dataReader").resource(resource)
+				.lineMapper(transactionLineMapper).strict(false).build();
 	}
 
 	private LineMapper<Transaction> createTransactionLineMapper() {
