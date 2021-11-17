@@ -52,7 +52,7 @@ public class ListenerApplication {
 	private long charsPerLine = 168;
 	
 	@Bean
-    public Supplier<Message<?>> fileReader() {
+    public Supplier<Message<Transaction>> fileReader() {
 		S3Object s3Object = s3Client.getObject(bucketName,fileName);
 		ObjectMetadata metadata = s3Object.getObjectMetadata();
 		long contentLength = metadata.getContentLength();
@@ -73,7 +73,7 @@ public class ListenerApplication {
 							.build();
 				}
 			} else {
-				return MessageBuilder.withPayload("No more lines").build();
+				return MessageBuilder.withPayload(new Transaction("AA")).build();
 			}
 			return MessageBuilder.withPayload(new Transaction()).build();
 		};

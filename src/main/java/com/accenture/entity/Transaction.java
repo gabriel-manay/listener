@@ -324,7 +324,10 @@ public class Transaction implements Serializable {
 
 	public Transaction() {
 	}
-	
+
+	public Transaction(String transactionCode){
+		this.transactionCode = transactionCode;
+	}
 
 	@Override
 	public String toString() {
