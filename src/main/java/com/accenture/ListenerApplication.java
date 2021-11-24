@@ -2,10 +2,11 @@ package com.accenture;
 
 import java.util.function.Supplier;
 
+import com.accenture.entity.Transaction;
+import com.accenture.entity.TransactionDTO;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3control.model.S3ObjectMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -18,8 +19,8 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.accenture.entity.Transaction;
-import com.accenture.entity.TransactionDTO;
+import com.accenture.entity.TCR00;
+import com.accenture.entity.TCR00DTO;
 
 @SpringBootApplication
 @EnableBatchProcessing
@@ -32,6 +33,9 @@ public class ListenerApplication {
 		SpringApplication.run(ListenerApplication.class, args);
 	}
 	
+	@Autowired
+	TCR00DTO TCR00DTO;
+
 	@Autowired
 	TransactionDTO transactionDTO;
 
@@ -51,8 +55,8 @@ public class ListenerApplication {
 	private int totalLines;
 	private long charsPerLine = 168;
 	
-	@Bean
-    public Supplier<Message<Transaction>> fileReader() {
+	/*@Bean
+    public Supplier<Message<TCR00>> fileReader() {
 		S3Object s3Object = s3Client.getObject(bucketName,fileName);
 		ObjectMetadata metadata = s3Object.getObjectMetadata();
 		long contentLength = metadata.getContentLength();
@@ -60,8 +64,8 @@ public class ListenerApplication {
 
 		return () -> {
 			if(contador != totalLines){
-				if (transactionDTO.getTransactions().size() > 0) {
-					Transaction t = transactionDTO.getFirstElement();
+				if (TCR00DTO.getTransactions().size() > 0) {
+					TCR00 t = TCR00DTO.getFirstElement();
 
 					LOGGER.info(">>>> transaccion: {}",t.toString());
 
@@ -73,7 +77,19 @@ public class ListenerApplication {
 							.build();
 				}
 			} else {
-				return MessageBuilder.withPayload(new Transaction("AA")).build();
+				return MessageBuilder.withPayload(new TCR00("AA")).build();
+			}
+			return MessageBuilder.withPayload(new TCR00()).build();
+		};
+	}*/
+
+	@Bean
+	public Supplier<Message<Transaction>> fileReader(){
+		return ()->{
+			if(transactionDTO.getTransactions().size() > 0){
+				Transaction transaction = transactionDTO.getFirstElement();
+				LOGGER.info(">>>> transaccion: {}",transaction.toString());
+				return MessageBuilder.withPayload(transaction).build();
 			}
 			return MessageBuilder.withPayload(new Transaction()).build();
 		};

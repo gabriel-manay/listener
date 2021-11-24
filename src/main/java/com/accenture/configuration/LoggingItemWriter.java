@@ -5,22 +5,20 @@ import java.util.List;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.accenture.entity.Transaction;
-import com.accenture.entity.TransactionDTO;
+import com.accenture.entity.TCR00;
+import com.accenture.entity.TCR00DTO;
 
-public class LoggingItemWriter implements ItemWriter<Transaction> {
+public class LoggingItemWriter implements ItemWriter<TCR00> {
 
     @Autowired
-	TransactionDTO transactionDTO;
+    TCR00DTO TCR00DTO;
 
     /**
      * Cada línea de tipo Transaction se agrega a lista de transacciones en DTO
      * para que ListenerApplication las envíe al canal de salida
      */
     @Override
-    public void write(List<? extends Transaction> list) throws Exception {
-        transactionDTO.addTransaction(list.get(0));
+    public void write(List<? extends TCR00> list) throws Exception {
+        TCR00DTO.addTransaction(list.get(0));
     }
-    
-    
 }
