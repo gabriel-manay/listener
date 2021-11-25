@@ -394,11 +394,6 @@ public class JobConfig {
 		return lineMapper;
 	}
 
-	/*@Bean
-	public ItemWriter<TCR00> itemWriter() {
-		return new LoggingItemWriter();
-	}*/
-
 	@Bean
 	public ItemWriter<Transaction> transactionItemWriter(){
 		return new TransactionLoggingItemWriter();

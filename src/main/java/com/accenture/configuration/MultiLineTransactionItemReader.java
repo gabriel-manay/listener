@@ -13,26 +13,20 @@ public class MultiLineTransactionItemReader implements ItemReader<Transaction>{
     public Transaction read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
         Transaction transaction = new Transaction();
         this.delegate.open(new ExecutionContext());
-        /*TCR line = this.delegate.read();
+        TCR line;
+        if(nextLine != null){
+            line = nextLine;
+            nextLine = null;
+        } else {
+            line = this.delegate.read();
+        }
         boolean finished = line == null;
         while(!finished){
             addCurrentTCR(transaction,line);
             line = this.delegate.read();
             if(line == null || isRecordStart(line)){
+                nextLine = line;
                 finished = true;
-                return transaction;
-            }
-        }*/
-
-        for(TCR line; (line = this.delegate.read())!=null;) {
-            if(nextLine == null){
-                addCurrentTCR(transaction, line);
-            } else {
-                addCurrentTCR(transaction, nextLine);
-            }
-            nextLine = this.delegate.peek();
-
-            if (nextLine == null || isRecordStart(nextLine)) {
                 return transaction;
             }
         }

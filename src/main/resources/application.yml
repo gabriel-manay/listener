@@ -1,19 +1,19 @@
 cloud:
   aws:
     credentials:
-      access-key: AKIAT4P6JQSNJNSSHOIQ
-      secret-key: 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
+      access-key: ACCESSKEYEJEMPLO
+      secret-key: SECRETKEYEJEMPLO
     region:
-      static: us-east-1
+      static: REGIONEJEMPLO
     stack:
       auto: false
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://database-pruebas.cjelxo04j357.us-east-1.rds.amazonaws.com:3306/casouso?autoReconnect=true&useSSL=false
-    username: admin
-    password: admin123
+    url: jdbc:mysql://localhost:3306/casouso?autoReconnect=true&useSSL=false
+    username: username
+    password: password
   batch:
     jdbc:
       initialize-schema: NEVER
@@ -37,7 +37,7 @@ spring:
 #---
 application:
   file:
-    name: TCR00-02.txt
+    name: ARCHIVOEJEMPLO
   bucket:
-    name: transac2
+    name: BUCKETEJEMPLO
 
