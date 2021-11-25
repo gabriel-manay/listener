@@ -331,30 +331,26 @@ public class JobConfig {
 	private LineTokenizer tcr07Tokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "accountNumber", "accountNumberExtension", "floorLimitIndicator",
-				"crbExceptionFileIndicator", "PCASIndicator", "acquirerReferenceNumber", "acquirersBusinessID",
-				"purchaseDate", "destinationAmount", "destinationCurrencyCode", "sourceAmount", "sourceCurrencyCode",
-				"merchantName", "merchantCity", "merchantCountryCode", "merchantCategoryCode", "merchantZIPCode",
-				"merchantStateProvinceCode", "requestedPaymentService", "numberOfPaymentForms", "usageCode",
-				"reasonCode", "settlementFlag", "authorizationCharacteristicsIndicator", "authorizationCode",
-				"POSTerminalCapability", "reserved", "cardholderIDMethod", "collectionOnlyFlag", "POSEntryMode",
-				"centralProcessingDate", "reimbursementAttribute" };
+				"transactionComponentSequenceNumber", "transactionType", "cardSequenceNumber", "terminalTransactionDate",
+				"terminalCapabilityProfile", "terminalCountryCode", "terminalSerialNumber", "unpredictableNumber",
+				"applicationTransactionCounter", "applicationInterchangeProfile", "cryptogram", "issuerApplicationDataByte2", "issuerApplicationDataByte3",
+				"terminalVerificationResults", "issuerApplicationDataByte4To7", "cryptogramAmount", "issuerApplicationDataByte8", "issuerApplicationDataByte9To16",
+				"issuerApplicationDataByte1", "issuerApplicationDataByte17", "issuerApplicationDataByte18To32", "formFactorIndicator",
+				"issuerScript1Results" };
 		rc.setNames(names);
-		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 20),
-				new Range(21, 23), new Range(24, 24), new Range(25, 25), new Range(26, 26), new Range(27, 49),
-				new Range(50, 57), new Range(58, 61), new Range(62, 73), new Range(74, 76), new Range(77, 88),
-				new Range(89, 91), new Range(92, 116), new Range(117, 129), new Range(130, 132), new Range(133, 136),
-				new Range(137, 141), new Range(142, 144), new Range(145, 145), new Range(146, 146), new Range(147, 147),
-				new Range(148, 149), new Range(150, 150), new Range(151, 151), new Range(152, 157), new Range(158, 158),
-				new Range(159, 159), new Range(160, 160), new Range(161, 161), new Range(162, 163), new Range(164, 167),
-				new Range(168, 168) };
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 6),
+				new Range(7, 9), new Range(10, 15), new Range(16, 21), new Range(22, 24), new Range(25, 32),
+				new Range(33, 40), new Range(41, 44), new Range(45, 48), new Range(49, 64), new Range(65, 66),
+				new Range(67, 68), new Range(69, 78), new Range(79, 86), new Range(87, 98), new Range(99, 100),
+				new Range(101, 116), new Range(117, 118), new Range(119, 120), new Range(121, 150), new Range(151, 158),
+				new Range(159, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
 
-	private FieldSetMapper<TCR00> tcr07FieldSetMapper() {
-		BeanWrapperFieldSetMapper<TCR00> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
-		studentInformationMapper.setTargetType(TCR00.class);
+	private FieldSetMapper<TCR07> tcr07FieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR07> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR07.class);
 		return studentInformationMapper;
 	}
 
@@ -369,7 +365,7 @@ public class JobConfig {
 		//tokenizers.put("0?04*", tcr04Tokenizer());
 		tokenizers.put("0?05*", tcr05Tokenizer());
 		tokenizers.put("0?06*", tcr06Tokenizer());
-		//tokenizers.put("0?07*", tcr07Tokenizer());
+		tokenizers.put("0?07*", tcr07Tokenizer());
 
 		lineMapper.setTokenizers(tokenizers);
 
@@ -381,7 +377,7 @@ public class JobConfig {
 		//mappers.put("0?04*", tcr04FieldSetMapper());
 		mappers.put("0?05*", tcr05FieldSetMapper());
 		mappers.put("0?06*", tcr06FieldSetMapper());
-		//mappers.put("0?07*", tcr07FieldSetMapper());
+		mappers.put("0?07*", tcr07FieldSetMapper());
 
 		lineMapper.setFieldSetMappers(mappers);
 
