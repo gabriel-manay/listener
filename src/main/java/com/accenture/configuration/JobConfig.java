@@ -328,9 +328,30 @@ public class JobConfig {
 		return rc;
 	}
 
-	private FieldSetMapper<TCR03AI> tcr03FLFieldSetMapper() {
-		BeanWrapperFieldSetMapper<TCR03AI> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
-		studentInformationMapper.setTargetType(TCR03AI.class);
+	private FieldSetMapper<TCR03FL> tcr03FLFieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR03FL> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR03FL.class);
+		return studentInformationMapper;
+	}
+
+	private LineTokenizer tcr03CRTokenizer() {
+		FixedLengthTokenizer rc = new FixedLengthTokenizer();
+		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
+				"transactionComponentSequenceNumber", "reserved", "fastFundsIndicator", "businessFormatCode", "businessApplicationID",
+				"sourceOfFunds", "paymentReversalReasonCode", "senderReferenceNumber", "senderAccountNumber", "senderName",
+				"senderAddress", "senderCity", "senderState", "senderCountry" };
+		rc.setNames(names);
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 15),
+				new Range(16, 16), new Range(17, 18), new Range(19, 20), new Range(21, 21), new Range(22, 23),
+				new Range(24, 39), new Range(40, 73), new Range(74, 103), new Range(104, 138), new Range(139, 163),
+				new Range(164, 165), new Range(166, 168)};
+		rc.setColumns(ranges);
+		return rc;
+	}
+
+	private FieldSetMapper<TCR03CR> tcr03CRFieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR03CR> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR03CR.class);
 		return studentInformationMapper;
 	}
 
@@ -456,6 +477,7 @@ public class JobConfig {
 		tokenizers.put("0?03????????????LG*", tcr03LGTokenizer());
 		tokenizers.put("0?03????????????CA*", tcr03CATokenizer());
 		tokenizers.put("0?03????????????FL*", tcr03FLTokenizer());
+		tokenizers.put("0?03????????????CR*", tcr03CRTokenizer());
 		//tokenizers.put("0?04*", tcr04Tokenizer());
 		tokenizers.put("0?05*", tcr05Tokenizer());
 		tokenizers.put("0?06*", tcr06Tokenizer());
@@ -472,6 +494,7 @@ public class JobConfig {
 		mappers.put("0?03????????????LG*", tcr03LGFieldSetMapper());
 		mappers.put("0?03????????????CA*", tcr03CAFieldSetMapper());
 		mappers.put("0?03????????????FL*", tcr03FLFieldSetMapper());
+		mappers.put("0?03????????????CR*", tcr03CRFieldSetMapper());
 		//mappers.put("0?04*", tcr04FieldSetMapper());
 		mappers.put("0?05*", tcr05FieldSetMapper());
 		mappers.put("0?06*", tcr06FieldSetMapper());
