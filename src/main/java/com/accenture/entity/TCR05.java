@@ -313,4 +313,44 @@ public class TCR05 extends TCR{
     public void setCvv2ResultCode(String cvv2ResultCode) {
         this.cvv2ResultCode = cvv2ResultCode;
     }
+
+    @Override
+    public String toString() {
+        return "TCR05{" +
+                "transactionCode='" + transactionCode + '\'' +
+                ", transactionCodeQualifier='" + transactionCodeQualifier + '\'' +
+                ", transactionComponentSequenceNumber='" + transactionComponentSequenceNumber + '\'' +
+                ", transactionIdentifier='" + transactionIdentifier + '\'' +
+                ", authorizedAmount='" + authorizedAmount + '\'' +
+                ", authorizationCurrencyCode='" + authorizationCurrencyCode + '\'' +
+                ", authorizationResponseCode='" + authorizationResponseCode + '\'' +
+                ", validationCode='" + validationCode + '\'' +
+                ", excludedTransactionIdentifierReason='" + excludedTransactionIdentifierReason + '\'' +
+                ", reserved1='" + reserved1 + '\'' +
+                ", reserved2='" + reserved2 + '\'' +
+                ", multipleClearingSequenceNumber='" + multipleClearingSequenceNumber + '\'' +
+                ", multipleClearingSequenceCount='" + multipleClearingSequenceCount + '\'' +
+                ", marketSpecificAuthorizationDataIndicator='" + marketSpecificAuthorizationDataIndicator + '\'' +
+                ", totalAuthorizedAmount='" + totalAuthorizedAmount + '\'' +
+                ", informationIndicator='" + informationIndicator + '\'' +
+                ", merchantTelephoneNumber='" + merchantTelephoneNumber + '\'' +
+                ", additionalDataIndicator='" + additionalDataIndicator + '\'' +
+                ", merchantVolumeIndicator='" + merchantVolumeIndicator + '\'' +
+                ", electronicCommerceGoodsIndicator='" + electronicCommerceGoodsIndicator + '\'' +
+                ", merchantVerificationValue='" + merchantVerificationValue + '\'' +
+                ", interchangeFeeAmount='" + interchangeFeeAmount + '\'' +
+                ", interchangeFeeSign='" + interchangeFeeSign + '\'' +
+                ", sourceCurrencyToBaseCurrencyExchangeRate='" + sourceCurrencyToBaseCurrencyExchangeRate + '\'' +
+                ", baseCurrencyToDestinationCurrencyExchangeRate='" + baseCurrencyToDestinationCurrencyExchangeRate + '\'' +
+                ", optionalIssuerISAAmount='" + optionalIssuerISAAmount + '\'' +
+                ", productID='" + productID + '\'' +
+                ", programID='" + programID + '\'' +
+                ", dynamicCurrencyConversionIndicator='" + dynamicCurrencyConversionIndicator + '\'' +
+                ", accountTypeIdentification='" + accountTypeIdentification + '\'' +
+                ", spendQualifiedIndicator='" + spendQualifiedIndicator + '\'' +
+                ", panToken='" + panToken + '\'' +
+                ", reserved3='" + reserved3 + '\'' +
+                ", cvv2ResultCode='" + cvv2ResultCode + '\'' +
+                '}';
+    }
 }

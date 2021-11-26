@@ -233,4 +233,35 @@ public class TCR07 extends TCR{
     public void setIssuerScript1Results(String issuerScript1Results) {
         this.issuerScript1Results = issuerScript1Results;
     }
+
+    @Override
+    public String toString() {
+        return "TCR07{" +
+                "transactionCode='" + transactionCode + '\'' +
+                ", transactionCodeQualifier='" + transactionCodeQualifier + '\'' +
+                ", transactionComponentSequenceNumber='" + transactionComponentSequenceNumber + '\'' +
+                ", transactionType='" + transactionType + '\'' +
+                ", cardSequenceNumber='" + cardSequenceNumber + '\'' +
+                ", terminalTransactionDate='" + terminalTransactionDate + '\'' +
+                ", terminalCapabilityProfile='" + terminalCapabilityProfile + '\'' +
+                ", terminalCountryCode='" + terminalCountryCode + '\'' +
+                ", terminalSerialNumber='" + terminalSerialNumber + '\'' +
+                ", unpredictableNumber='" + unpredictableNumber + '\'' +
+                ", applicationTransactionCounter='" + applicationTransactionCounter + '\'' +
+                ", applicationInterchangeProfile='" + applicationInterchangeProfile + '\'' +
+                ", cryptogram='" + cryptogram + '\'' +
+                ", issuerApplicationDataByte2='" + issuerApplicationDataByte2 + '\'' +
+                ", issuerApplicationDataByte3='" + issuerApplicationDataByte3 + '\'' +
+                ", terminalVerificationResults='" + terminalVerificationResults + '\'' +
+                ", issuerApplicationDataByte4To7='" + issuerApplicationDataByte4To7 + '\'' +
+                ", cryptogramAmount='" + cryptogramAmount + '\'' +
+                ", issuerApplicationDataByte8='" + issuerApplicationDataByte8 + '\'' +
+                ", issuerApplicationDataByte9To16='" + issuerApplicationDataByte9To16 + '\'' +
+                ", issuerApplicationDataByte1='" + issuerApplicationDataByte1 + '\'' +
+                ", issuerApplicationDataByte17='" + issuerApplicationDataByte17 + '\'' +
+                ", issuerApplicationDataByte18To32='" + issuerApplicationDataByte18To32 + '\'' +
+                ", formFactorIndicator='" + formFactorIndicator + '\'' +
+                ", issuerScript1Results='" + issuerScript1Results + '\'' +
+                '}';
+    }
 }

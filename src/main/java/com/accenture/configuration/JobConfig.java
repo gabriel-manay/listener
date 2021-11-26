@@ -214,33 +214,52 @@ public class JobConfig {
 		return studentInformationMapper;
 	}
 
-	private LineTokenizer tcr03Tokenizer() {
+	private LineTokenizer tcr03AITokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "accountNumber", "accountNumberExtension", "floorLimitIndicator",
-				"crbExceptionFileIndicator", "PCASIndicator", "acquirerReferenceNumber", "acquirersBusinessID",
-				"purchaseDate", "destinationAmount", "destinationCurrencyCode", "sourceAmount", "sourceCurrencyCode",
-				"merchantName", "merchantCity", "merchantCountryCode", "merchantCategoryCode", "merchantZIPCode",
-				"merchantStateProvinceCode", "requestedPaymentService", "numberOfPaymentForms", "usageCode",
-				"reasonCode", "settlementFlag", "authorizationCharacteristicsIndicator", "authorizationCode",
-				"POSTerminalCapability", "reserved", "cardholderIDMethod", "collectionOnlyFlag", "POSEntryMode",
-				"centralProcessingDate", "reimbursementAttribute" };
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
+				"reserved2", "passengerName", "departureDate", "airportCode",
+				"tripLeg1Information", "tripLeg2Information", "tripLeg3Information", "tripLeg4Information", "travelAgencyCode",
+				"travelAgencyName", "restrictedTicketIndicator", "fareBasisCodeLeg1", "fareBasisCodeLeg2", "fareBasisCodeLeg3",
+				"fareBasisCodeLeg4", "computerizedReservationSystem", "flightNumberLeg1", "flightNumberLeg2",
+				"flightNumberLeg3", "flightNumberLeg4", "creditReasonIndicator", "ticketChangeIndicator",
+				"reserved3" };
 		rc.setNames(names);
-		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 20),
-				new Range(21, 23), new Range(24, 24), new Range(25, 25), new Range(26, 26), new Range(27, 49),
-				new Range(50, 57), new Range(58, 61), new Range(62, 73), new Range(74, 76), new Range(77, 88),
-				new Range(89, 91), new Range(92, 116), new Range(117, 129), new Range(130, 132), new Range(133, 136),
-				new Range(137, 141), new Range(142, 144), new Range(145, 145), new Range(146, 146), new Range(147, 147),
-				new Range(148, 149), new Range(150, 150), new Range(151, 151), new Range(152, 157), new Range(158, 158),
-				new Range(159, 159), new Range(160, 160), new Range(161, 161), new Range(162, 163), new Range(164, 167),
-				new Range(168, 168) };
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
+				new Range(15, 16), new Range(17, 18), new Range(19, 26), new Range(27, 46), new Range(47, 52),
+				new Range(53, 55), new Range(56, 62), new Range(63, 69), new Range(70, 76), new Range(77, 83),
+				new Range(84, 91), new Range(92, 116), new Range(117, 117), new Range(118, 123), new Range(124, 129),
+				new Range(130, 135), new Range(136, 141), new Range(142, 145), new Range(146, 150), new Range(151, 155),
+				new Range(156, 160), new Range(161, 165), new Range(166, 166), new Range(167, 167), new Range(168, 168)};
 		rc.setColumns(ranges);
 		return rc;
 	}
 
-	private FieldSetMapper<TCR00> tcr03FieldSetMapper() {
-		BeanWrapperFieldSetMapper<TCR00> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
-		studentInformationMapper.setTargetType(TCR00.class);
+	private FieldSetMapper<TCR03AI> tcr03AIFieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR03AI> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR03AI.class);
+		return studentInformationMapper;
+	}
+
+	private LineTokenizer tcr03ANTokenizer() {
+		FixedLengthTokenizer rc = new FixedLengthTokenizer();
+		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode","ancillaryTicketDocumentNumber",
+				"ancillaryServiceCategory1", "ancillaryServiceSubCategory1", "ancillaryServiceCategory2","ancillaryServiceSubCategory2",
+				"ancillaryServiceCategory3", "ancillaryServiceSubCategory3", "ancillaryServiceCategory4", "ancillaryServiceSubCategory4",
+				"passengerName","issuedInConnectionWithTicketNumber", "creditReasonIndicator", "reserved2"};
+		rc.setNames(names);
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
+				new Range(15, 16), new Range(17, 18), new Range(19, 33), new Range(34, 37), new Range(38, 41),
+				new Range(42, 45), new Range(46, 49), new Range(50, 53), new Range(54, 57), new Range(58, 61),
+				new Range(62, 65), new Range(66, 85), new Range(86, 100), new Range(101, 101), new Range(102, 168)};
+		rc.setColumns(ranges);
+		return rc;
+	}
+
+	private FieldSetMapper<TCR03AN> tcr03ANFieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR03AN> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR03AN.class);
 		return studentInformationMapper;
 	}
 
@@ -361,7 +380,8 @@ public class JobConfig {
 		tokenizers.put("0?00*", tcr00Tokenizer());
 		tokenizers.put("0?01*", tcr01Tokenizer());
 		tokenizers.put("0?02*", tcr02Tokenizer());
-		//tokenizers.put("0?03*", tcr03Tokenizer());
+		tokenizers.put("0?03????????????AI*", tcr03AITokenizer());
+		tokenizers.put("0?03????????????AN*", tcr03ANTokenizer());
 		//tokenizers.put("0?04*", tcr04Tokenizer());
 		tokenizers.put("0?05*", tcr05Tokenizer());
 		tokenizers.put("0?06*", tcr06Tokenizer());
@@ -373,7 +393,8 @@ public class JobConfig {
 		mappers.put("0?00*", tcr00FieldSetMapper());
 		mappers.put("0?01*", tcr01FieldSetMapper());
 		mappers.put("0?02*", tcr02FieldSetMapper());
-		//mappers.put("0?03*", tcr03FieldSetMapper());
+		mappers.put("0?03????????????AI*", tcr03AIFieldSetMapper());
+		mappers.put("0?03????????????AN*", tcr03ANFieldSetMapper());
 		//mappers.put("0?04*", tcr04FieldSetMapper());
 		mappers.put("0?05*", tcr05FieldSetMapper());
 		mappers.put("0?06*", tcr06FieldSetMapper());

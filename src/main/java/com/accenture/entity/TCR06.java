@@ -232,4 +232,35 @@ public class TCR06 extends TCR{
     public void setReserved2(String reserved2) {
         this.reserved2 = reserved2;
     }
+
+    @Override
+    public String toString() {
+        return "TCR06{" +
+                "transactionCode='" + transactionCode + '\'' +
+                ", transactionCodeQualifier='" + transactionCodeQualifier + '\'' +
+                ", transactionComponentSequenceNumber='" + transactionComponentSequenceNumber + '\'' +
+                ", localTax='" + localTax + '\'' +
+                ", localTaxIncluded='" + localTaxIncluded + '\'' +
+                ", nationalTax='" + nationalTax + '\'' +
+                ", nationalTaxIncluded='" + nationalTaxIncluded + '\'' +
+                ", merchantVATRegistrationSingleBusinessReferenceNumber='" + merchantVATRegistrationSingleBusinessReferenceNumber + '\'' +
+                ", customerVATRegistrationNumber='" + customerVATRegistrationNumber + '\'' +
+                ", reserved1='" + reserved1 + '\'' +
+                ", summaryCommodityCode='" + summaryCommodityCode + '\'' +
+                ", otherTax='" + otherTax + '\'' +
+                ", messageIdentifier='" + messageIdentifier + '\'' +
+                ", timeOfPurchase='" + timeOfPurchase + '\'' +
+                ", customerReferenceIdentifier='" + customerReferenceIdentifier + '\'' +
+                ", nonFuelProductCode1='" + nonFuelProductCode1 + '\'' +
+                ", nonFuelProductCode2='" + nonFuelProductCode2 + '\'' +
+                ", nonFuelProductCode3='" + nonFuelProductCode3 + '\'' +
+                ", nonFuelProductCode4='" + nonFuelProductCode4 + '\'' +
+                ", nonFuelProductCode5='" + nonFuelProductCode5 + '\'' +
+                ", nonFuelProductCode6='" + nonFuelProductCode6 + '\'' +
+                ", nonFuelProductCode7='" + nonFuelProductCode7 + '\'' +
+                ", nonFuelProductCode8='" + nonFuelProductCode8 + '\'' +
+                ", merchantPostalCode='" + merchantPostalCode + '\'' +
+                ", reserved2='" + reserved2 + '\'' +
+                '}';
+    }
 }
