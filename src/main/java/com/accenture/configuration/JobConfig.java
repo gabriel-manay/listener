@@ -355,6 +355,26 @@ public class JobConfig {
 		return studentInformationMapper;
 	}
 
+	private LineTokenizer tcr03LDTokenizer() {
+		FixedLengthTokenizer rc = new FixedLengthTokenizer();
+		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
+				"transactionComponentSequenceNumber", "reserved1", "businessFormatCode", "cardholderTaxIDType",
+				"cardholderTaxID", "reserved2", "assetIndicator", "loanType", "merchantProgramIdentifier",
+				"reserved3" };
+		rc.setNames(names);
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 16),
+				new Range(17, 18), new Range(19, 22), new Range(23, 37), new Range(38, 39), new Range(40, 40),
+				new Range(41, 60), new Range(61, 66), new Range(67, 168)};
+		rc.setColumns(ranges);
+		return rc;
+	}
+
+	private FieldSetMapper<TCR03LD> tcr03LDFieldSetMapper() {
+		BeanWrapperFieldSetMapper<TCR03LD> studentInformationMapper = new BeanWrapperFieldSetMapper<>();
+		studentInformationMapper.setTargetType(TCR03LD.class);
+		return studentInformationMapper;
+	}
+
 	private LineTokenizer tcr04Tokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
@@ -478,6 +498,7 @@ public class JobConfig {
 		tokenizers.put("0?03????????????CA*", tcr03CATokenizer());
 		tokenizers.put("0?03????????????FL*", tcr03FLTokenizer());
 		tokenizers.put("0?03????????????CR*", tcr03CRTokenizer());
+		tokenizers.put("0?03????????????LD*", tcr03LDTokenizer());
 		//tokenizers.put("0?04*", tcr04Tokenizer());
 		tokenizers.put("0?05*", tcr05Tokenizer());
 		tokenizers.put("0?06*", tcr06Tokenizer());
@@ -495,6 +516,7 @@ public class JobConfig {
 		mappers.put("0?03????????????CA*", tcr03CAFieldSetMapper());
 		mappers.put("0?03????????????FL*", tcr03FLFieldSetMapper());
 		mappers.put("0?03????????????CR*", tcr03CRFieldSetMapper());
+		mappers.put("0?03????????????LD*", tcr03LDFieldSetMapper());
 		//mappers.put("0?04*", tcr04FieldSetMapper());
 		mappers.put("0?05*", tcr05FieldSetMapper());
 		mappers.put("0?06*", tcr06FieldSetMapper());
