@@ -22,7 +22,7 @@ public class MultiLineTransactionItemReader implements ItemReader<Transaction>{
         }
         boolean finished = line == null;
         while(!finished){
-            addCurrentTCR(transaction,line);
+            transaction.getTcrs().add(line);
             line = this.delegate.read();
             if(line == null || isRecordStart(line)){
                 nextLine = line;
@@ -35,19 +35,6 @@ public class MultiLineTransactionItemReader implements ItemReader<Transaction>{
 
     private boolean isRecordStart(TCR line) {
         return line.getTransactionComponentSequenceNumber().equals("0");
-    }
-
-    private void addCurrentTCR(Transaction transaction, TCR tcr){
-        if(tcr instanceof TCR00){
-            transaction.setTcr00((TCR00) tcr);
-        }
-        if(tcr instanceof TCR01){
-            transaction.setTcr01((TCR01) tcr);
-        }
-
-        if(tcr instanceof TCR02){
-            transaction.setTcr02((TCR02) tcr);
-        }
     }
 
     public SingleItemPeekableItemReader<TCR> getDelegate() {

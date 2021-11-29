@@ -331,7 +331,7 @@ public class TCR00 extends TCR implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Transaction{" +
+		return "TCR00{" +
 				"transactionCode=" + transactionCode +
 				", transactionCodeQualifier=" + transactionCodeQualifier +
 				", transactionComponentSequenceNumber=" + transactionComponentSequenceNumber +

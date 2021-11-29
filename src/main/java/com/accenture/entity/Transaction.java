@@ -1,8 +1,11 @@
 package com.accenture.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Transaction {
 
-    private TCR00 tcr00;
+    /*private TCR00 tcr00;
     private TCR01 tcr01;
     private TCR02 tcr02;
 
@@ -36,6 +39,23 @@ public class Transaction {
                 "tcr00=" + tcr00 +
                 ", tcr01=" + tcr01 +
                 ", tcr02=" + tcr02 +
+                '}';
+    }*/
+
+    private List<TCR> tcrs = new ArrayList<>();
+
+    public List<TCR> getTcrs() {
+        return tcrs;
+    }
+
+    public void setTcrs(List<TCR> tcrs) {
+        this.tcrs = tcrs;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "tcrs=" + tcrs.toString() +
                 '}';
     }
 }
