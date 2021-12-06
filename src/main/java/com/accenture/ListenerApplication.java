@@ -19,8 +19,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.accenture.entity.TCR00;
-import com.accenture.entity.TCR00DTO;
 
 @SpringBootApplication
 @EnableBatchProcessing
@@ -32,9 +30,6 @@ public class ListenerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ListenerApplication.class, args);
 	}
-	
-	@Autowired
-	TCR00DTO TCR00DTO;
 
 	@Autowired
 	TransactionDTO transactionDTO;
