@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation=" http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+http://www.springframework.org/schema/batch
+http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/casouso?autoReconnect=TRUE" />
+        <property name="username" value="" />
+        <property name="password" value="" />
+    </bean>
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.JobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="databaseType" value="mysql" />
+    </bean>
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+    <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+    <bean id="itemReader" class="com.accenture.configuration.MultiLineTransactionItemReader" scope="step">
+        <property name="delegate" ref="singleItemPeekableItemReader" />
+    </bean>
+    <bean id="singleItemPeekableItemReader" class="org.springframework.batch.item.support.SingleItemPeekableItemReader">
+        <property name="delegate" ref="flatFileItemReader" />
+    </bean>
+    <bean id="flatFileItemReader" class="org.springframework.batch.item.file.FlatFileItemReader">
+        <property name="resource" value="TCRFull.txt" />
+        <property name="lineMapper" ref="orderFileLineMapper" />
+    </bean>
+    <bean id="orderFileLineMapper" class="org.springframework.batch.item.file.mapping.PatternMatchingCompositeLineMapper">
+        <property name="tokenizers">
+            <map>
+                <entry key="0?00*" value-ref="tcr00Tokenizer" />
+                <entry key="0?01*" value-ref="tcr01Tokenizer" />
+                <entry key="0?02*" value-ref="tcr02Tokenizer" />
+                <entry key="0?03????????????AI*" value-ref="tcr03AITokenizer" />
+                <entry key="0?03????????????AN*" value-ref="tcr03ANTokenizer" />
+                <entry key="0?03????????????LG*" value-ref="tcr03LGTokenizer" />
+                <entry key="0?03????????????CA*" value-ref="tcr03CATokenizer" />
+                <entry key="0?03????????????FL*" value-ref="tcr03FLTokenizer" />
+                <entry key="0?03????????????CR*" value-ref="tcr03CRTokenizer" />
+                <entry key="0?03????????????LD*" value-ref="tcr03LDTokenizer" />
+                <entry key="0?04??????????SD*" value-ref="tcr04SFTokenizer" />
+                <entry key="0?04??????????DF*" value-ref="tcr04VROLTokenizer" />
+                <entry key="0?05*" value-ref="tcr05Tokenizer" />
+                <entry key="0?06*" value-ref="tcr06Tokenizer" />
+                <entry key="0?07*" value-ref="tcr07Tokenizer" />
+            </map>
+        </property>
+        <property name="fieldSetMappers">
+            <map>
+                <entry key="0?00*" value-ref="tcr00FieldSetMapper" />
+                <entry key="0?01*" value-ref="tcr01FieldSetMapper" />
+                <entry key="0?02*" value-ref="tcr02FieldSetMapper" />
+                <entry key="0?03????????????AI*" value-ref="tcr03AIFieldSetMapper" />
+                <entry key="0?03????????????AN*" value-ref="tcr03ANFieldSetMapper" />
+                <entry key="0?03????????????LG*" value-ref="tcr03LGFieldSetMapper" />
+                <entry key="0?03????????????CA*" value-ref="tcr03CAFieldSetMapper" />
+                <entry key="0?03????????????FL*" value-ref="tcr03FLFieldSetMapper" />
+                <entry key="0?03????????????CR*" value-ref="tcr03CRFieldSetMapper" />
+                <entry key="0?03????????????LD*" value-ref="tcr03LDFieldSetMapper" />
+                <entry key="0?04??????????SD*" value-ref="tcr04SFFieldSetMapper" />
+                <entry key="0?04??????????DF*" value-ref="tcr04VROLFieldSetMapper" />
+                <entry key="0?05*" value-ref="tcr05FieldSetMapper" />
+                <entry key="0?06*" value-ref="tcr06FieldSetMapper" />
+                <entry key="0?07*" value-ref="tcr07FieldSetMapper" />
+            </map>
+        </property>
+    </bean>
+    <bean id="tcr00Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,accountNumber,accountNumberExtension,floorLimitIndicator,crbExceptionFileIndicator,PCASIndicator,acquirerReferenceNumber,acquirersBusinessID,purchaseDate,destinationAmount,destinationCurrencyCode,sourceAmount,sourceCurrencyCode,merchantName,merchantCity,merchantCountryCode,merchantCategoryCode,merchantZIPCode,merchantStateProvinceCode,requestedPaymentService,numberOfPaymentForms,usageCode,reasonCode,settlementFlag,authorizationCharacteristicsIndicator,authorizationCode,POSTerminalCapability,reserved,cardholderIDMethod,collectionOnlyFlag,POSEntryMode,centralProcessingDate,reimbursementAttribute" />
+        <property name="columns" value="1-2,3-3,4-4,5-20,21-23,24-24,25-25,26-26,27-49,50-57,58-61,62-73,74-76,77-88,89-91,92-116,117-129,130-132,133-136,137-141,142-144,145-145,146-146,147-147,148-149,150-150,151-151,152-157,158-158,159-159,160-160,161-161,162-163,164-167,168-168" />
+    </bean>
+    <bean id="tcr00FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR00" />
+    </bean>
+    <bean id="tcr01Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,businessFormatCode,tokenAssuranceLevel,reserved1,reserved2,documentationIndicator,memberMessageText,specialConditionIndicator,feeProgramIndicator,issuerCharge,reserved3,cardAcceptorId,terminalId,nationalReimbursementFee,mpeCommerceAndPaymentIndicator,specialChargebackIndicator,conversionDate,reserved4,acceptanceTerminalIndicator,prepaidCardIndicator,serviceDevelopmentField,avsResponseCode,authorizationSourceCode,purchaseIdentifierFormat,accountSelection,installmentPaymentCount,purchaseIdentifier,cashback,chipConditionCode,posEnviroment" />
+        <property name="columns" value="1-2,3-3,4-4,5-5,6-7,8-16,17-22,23-23,24-73,74-75,76-78,79-79,80-80,81-95,96-103,104-115,116-116,117-117,118-121,122-123,124-124,125-125,126-126,127-127,128-128,129-129,130-130,131-132,133-157,158-166,167-167,168-168" />
+    </bean>
+    <bean id="tcr01FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR01" />
+    </bean>
+    <bean id="tcr02Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,installmentPaymentTotalAmount,nationalNetCountryCode,installmentPaymentIndicator,numberOfInstallmentPayments,installmentPaymentNumber,installmentPaymentInterestAmount,vatForInstallmentPaymentInterestAmount,installmentPaymentRiskAmount,vatForInstallmentPaymentRiskAmount,irfIndicator,settlementIndicator,deferredCardholderBillingDate,deferredSettlementDate,tipAmount,interchangeReimbursementFee,vatNationalReimbursementFee,promotionData,reserved" />
+        <property name="columns" value="1-2,3-3,4-4,5-16,17-19,20-21,22-23,24-25,26-37,38-47,48-57,58-67,68-68,69-69,70-75,76-81,82-93,94-103,104-113,114-133,134-168" />
+    </bean>
+    <bean id="tcr02FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR02" />
+    </bean>
+    <bean id="tcr03AITokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessApplicationID,businessFormatCode,reserved2,passengerName,departureDate,airportCode,tripLeg1Information,tripLeg2Information,tripLeg3Information,tripLeg4Information,travelAgencyCode,travelAgencyName,restrictedTicketIndicator,fareBasisCodeLeg1,fareBasisCodeLeg2,fareBasisCodeLeg3,fareBasisCodeLeg4,computerizedReservationSystem,flightNumberLeg1,flightNumberLeg2,flightNumberLeg3,flightNumberLeg4,creditReasonIndicator,ticketChangeIndicator,reserved3" />
+        <property name="columns" value="1-2,3-3,4-4,5-14,15-16,17-18,19-26,27-46,47-52,53-55,56-62,63-69,70-76,77-83,84-91,92-116,117-117,118-123,124-129,130-135,136-141,142-145,146-150,151-155,156-160,161-165,166-166,167-167,168-168" />
+    </bean>
+    <bean id="tcr03AIFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03AI" />
+    </bean>
+    <bean id="tcr03ANTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessApplicationID,businessFormatCode,ancillaryTicketDocumentNumber,ancillaryServiceCategory1,ancillaryServiceSubCategory1,ancillaryServiceCategory2,ancillaryServiceSubCategory2,ancillaryServiceCategory3,ancillaryServiceSubCategory3,ancillaryServiceCategory4,ancillaryServiceSubCategory4,passengerName,issuedInConnectionWithTicketNumber,creditReasonIndicator,reserved2" />
+        <property name="columns" value="1-2,3-3,4-4,5-14,15-16,17-18,19-33,34-37,38-41,42-45,46-49,50-53,54-57,58-61,62-65,66-85,86-100,101-101,102-168" />
+    </bean>
+    <bean id="tcr03ANFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03AN" />
+    </bean>
+    <bean id="tcr03LGTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessApplicationID,businessFormatCode,reserved2,lodgingNoShowIndicator,lodgingExtraCharges,reserved3,lodgingCheckInDate,dailyRoomDate,totalTax,prepaidExpenses,foodBeverageCharges,folioCashAdvances,roomNights,totalRoomTax,reserved4" />
+        <property name="columns" value="1-2,3-3,4-4,5-14,15-16,17-18,19-26,27-27,28-33,34-37,38-43,44-55,56-67,68-79,80-91,92-103,104-105,106-117,118-168" />
+    </bean>
+    <bean id="tcr03LGFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03LG" />
+    </bean>
+    <bean id="tcr03CATokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessApplicationID,businessFormatCode,daysRented,reserved2,carRentalNoShowIndicator,carRentalExtraChanges,reserved3,carRentalCheckOutDate,dailyRentalRate,weeklyRentalRate,insuranceCharges,fuelCharges,carClassCode,oneWayDropOffCharges,renterName,reserved4" />
+        <property name="columns" value="1-2,3-3,4-4,5-14,15-16,17-18,19-20,21-26,27-27,28-33,34-37,38-43,44-55,56-67,68-79,80-91,92-93,94-105,106-145,146-168" />
+    </bean>
+    <bean id="tcr03CAFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03CA" />
+    </bean>
+    <bean id="tcr03FLTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessApplicationID,businessFormatCode,reserved2,expandedFuelType,typeOfPurchase,fuelType,unitOfMeasure,quantity,unitCost,grossFuelPrice,netFuelPrice,grossNonFuelPrice,netNonFuelPrice,odometerReading,vatTaxRate,miscellaneousFuelTax,productQualifier,reserved3,miscellaneousNonFuelTax,serviceType,miscellaneousFuelTaxExemptionStatus,miscellaneousNonFuelTaxExemptionStatus,reserved4" />
+        <property name="columns" value="1-2,3-3,4-4,5-14,15-16,17-18,19-22,23-26,27-27,28-29,30-30,31-42,43-54,55-66,67-78,79-90,91-102,103-109,110-113,114-125,126-131,132-137,138-149,150-150,151-151,152-152,153-168" />
+    </bean>
+    <bean id="tcr03FLFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03FL" />
+    </bean>
+    <bean id="tcr03CRTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved,fastFundsIndicator,businessFormatCode,businessApplicationID,sourceOfFunds,paymentReversalReasonCode,senderReferenceNumber,senderAccountNumber,senderName,senderAddress,senderCity,senderState,senderCountry" />
+        <property name="columns" value="1-2,3-3,4-4,5-15,16-16,17-18,19-20,21-21,22-23,24-39,40-73,74-103,104-138,139-163,164-165,166-168" />
+    </bean>
+    <bean id="tcr03CRFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03CR" />
+    </bean>
+    <bean id="tcr03LDTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,reserved1,businessFormatCode,cardholderTaxIDType,cardholderTaxID,reserved2,assetIndicator,loanType,merchantProgramIdentifier,reserved3" />
+        <property name="columns" value="1-2,3-3,4-4,5-16,17-18,19-22,23-37,38-39,40-40,41-60,61-66,67-168" />
+    </bean>
+    <bean id="tcr03LDFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR03LD" />
+    </bean>
+    <bean id="tcr04SFTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,agentUniqueID,reserved1,businessFormatCode,networkIdentificationCode,contactForInformation,adjustmentProcessingIndicator,messageReasonCode,surchargeAmount,surchargeCreditDebitIndicator,visaInternalUseOnly,reserved2,surchargeAmountInCardholderBillingCurrency,moneyTransferForeignExchangeFee,paymentAccountReference,tokenRequestorID,reserved3" />
+        <property name="columns" value="1-2,3-3,4-4,5-9,10-14,15-16,17-20,21-45,46-46,47-50,51-58,59-60,61-76,77-103,104-111,112-119,120-148,149-159,160-168" />
+    </bean>
+    <bean id="tcr04SFFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR04SF" />
+    </bean>
+    <bean id="tcr04VROLTokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,agentUniqueID,reserved1,businessFormatCode,networkIdentificationCode,contactForInformation,adjustmentProcessingIndicator,messageReasonCode,disputeCondition,vrolFinancialID,vrolCaseNumber,vrolBundleCaseNumber,clientCaseNumber,disputeStatus,surchargeAmount,surchargeCreditDebitIndicator,reserved2" />
+        <property name="columns" value="1-2,3-3,4-4,5-9,10-14,15-16,17-20,21-45,46-46,47-50,51-53,54-64,65-74,75-84,85-104,105-106,107-114,115-116,117-168" />
+    </bean>
+    <bean id="tcr04VROLFieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR04VROL" />
+    </bean>
+    <bean id="tcr05Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,transactionIdentifier,authorizedAmount,authorizationCurrencyCode,authorizationResponseCode,validationCode,excludedTransactionIdentifierReason,reserved1,reserved2,multipleClearingSequenceNumber,multipleClearingSequenceCount,marketSpecificAuthorizationDataIndicator,totalAuthorizedAmount,informationIndicator,merchantTelephoneNumber,additionalDataIndicator,merchantVolumeIndicator,electronicCommerceGoodsIndicator,merchantVerificationValue,interchangeFeeAmount,interchangeFeeSign,sourceCurrencyToBaseCurrencyExchangeRate,baseCurrencyToDestinationCurrencyExchangeRate,optionalIssuerISAAmount,productID,programID,dynamicCurrencyConversionIndicator,accountTypeIdentification,spendQualifiedIndicator,panToken,reserved3,cvv2ResultCode" />
+        <property name="columns" value="1-2,3-3,4-4,5-19,20-31,32-34,35-36,37-40,41-41,42-42,43-44,45-46,47-48,49-49,50-61,62-62,63-76,77-77,78-79,80-81,82-91,92-106,107-107,108-115,116-123,124-135,136-137,138-143,144-144,145-148,149-149,150-165,166-167,168-168" />
+    </bean>
+    <bean id="tcr05FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR05" />
+    </bean>
+    <bean id="tcr06Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,localTax,localTaxIncluded,nationalTax,nationalTaxIncluded,merchantVATRegistrationSingleBusinessReferenceNumber,customerVATRegistrationNumber,reserved1,summaryCommodityCode,otherTax,messageIdentifier,timeOfPurchase,customerReferenceIdentifier,nonFuelProductCode1,nonFuelProductCode2,nonFuelProductCode3,nonFuelProductCode4,nonFuelProductCode5,nonFuelProductCode6,nonFuelProductCode7,nonFuelProductCode8,merchantPostalCode,reserved2" />
+        <property name="columns" value="1-2,3-3,4-4,5-16,17-17,18-29,30-30,31-50,51-63,64-75,76-79,80-91,92-106,107-110,111-127,128-129,130-131,132-133,134-135,136-137,138-139,140-141,142-143,144-154,155-168" />
+    </bean>
+    <bean id="tcr06FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR06" />
+    </bean>
+    <bean id="tcr07Tokenizer" class="org.springframework.batch.item.file.transform.FixedLengthTokenizer">
+        <property name="names" value="transactionCode,transactionCodeQualifier,transactionComponentSequenceNumber,transactionType,cardSequenceNumber,terminalTransactionDate,terminalCapabilityProfile,terminalCountryCode,terminalSerialNumber,unpredictableNumber,applicationTransactionCounter,applicationInterchangeProfile,cryptogram,issuerApplicationDataByte2,issuerApplicationDataByte3,terminalVerificationResults,issuerApplicationDataByte4To7,cryptogramAmount,issuerApplicationDataByte8,issuerApplicationDataByte9To16,issuerApplicationDataByte1,issuerApplicationDataByte17,issuerApplicationDataByte18To32,formFactorIndicator,issuerScript1Results" />
+        <property name="columns" value="1-2,3-3,4-4,5-6,7-9,10-15,16-21,22-24,25-32,33-40,41-44,45-48,49-64,65-66,67-68,69-78,79-86,87-98,99-100,101-116,117-118,119-120,121-150,151-158,159-168" />
+    </bean>
+    <bean id="tcr07FieldSetMapper" class="org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper">
+        <property name="targetType" value="com.accenture.entity.TCR07" />
+    </bean>
+    <bean id="itemWriter" class="com.accenture.configuration.TransactionLoggingItemWriter" />
+    <batch:job id="exampleJob">
+        <batch:step id="exampleJobStep">
+            <batch:tasklet transaction-manager="transactionManager" >
+                <batch:chunk reader="itemReader" writer="itemWriter" commit-interval="1" />
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+</beans>

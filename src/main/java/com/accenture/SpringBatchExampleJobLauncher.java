@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * This bean schedules and runs our Spring Batch job.
  */
-@Component
+//@Component
 public class SpringBatchExampleJobLauncher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringBatchExampleJobLauncher.class);
