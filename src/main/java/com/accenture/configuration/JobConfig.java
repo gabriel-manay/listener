@@ -36,7 +36,7 @@ import org.springframework.core.io.UrlResource;
 import com.accenture.service.ILogService;
 import com.amazonaws.services.s3.AmazonS3;
 
-@Configuration
+//@Configuration
 public class JobConfig {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JobConfig.class);
