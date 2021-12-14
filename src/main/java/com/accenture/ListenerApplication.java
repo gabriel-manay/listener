@@ -1,10 +1,6 @@
 package com.accenture;
 
-import java.util.function.Supplier;
-
-import com.accenture.entity.Transaction;
 import com.accenture.entity.TransactionDTO;
-import com.amazonaws.services.s3.AmazonS3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -18,10 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -30,12 +24,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class ListenerApplication {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ListenerApplication.class);
-
-	@Autowired
-	TransactionDTO transactionDTO;
-
-	@Autowired
-	private AmazonS3 s3Client;
 
 	@Value("${application.bucket.name}")
 	private String bucketName;
@@ -63,17 +51,4 @@ public class ListenerApplication {
 			LOGGER.error("Job failed: {}", e.getMessage());
 		}
 	}
-
-	@Bean
-	public Supplier<Message<Transaction>> fileReader(){
-		return ()->{
-			if(transactionDTO.getTransactions().size() > 0){
-				Transaction transaction = transactionDTO.getFirstElement();
-				LOGGER.info(">>>> transaccion: {}",transaction.toString());
-				return MessageBuilder.withPayload(transaction).build();
-			}
-			return MessageBuilder.withPayload(new Transaction()).build();
-		};
-	}
-
 }
