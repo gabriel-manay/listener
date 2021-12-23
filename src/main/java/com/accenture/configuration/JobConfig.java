@@ -1,10 +1,12 @@
 package com.accenture.configuration;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.accenture.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -30,11 +32,31 @@ import org.springframework.batch.item.support.builder.SingleItemPeekableItemRead
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
 
+import com.accenture.entity.TCR;
+import com.accenture.entity.TCR00;
+import com.accenture.entity.TCR01;
+import com.accenture.entity.TCR02;
+import com.accenture.entity.TCR03AI;
+import com.accenture.entity.TCR03AN;
+import com.accenture.entity.TCR03CA;
+import com.accenture.entity.TCR03CR;
+import com.accenture.entity.TCR03FL;
+import com.accenture.entity.TCR03LD;
+import com.accenture.entity.TCR03LG;
+import com.accenture.entity.TCR04SF;
+import com.accenture.entity.TCR04VROL;
+import com.accenture.entity.TCR05;
+import com.accenture.entity.TCR06;
+import com.accenture.entity.TCR07;
+import com.accenture.entity.Transaction;
+import com.accenture.entity.TransactionDTO;
 import com.accenture.service.ILogService;
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 
 //@Configuration
 public class JobConfig {
@@ -50,6 +72,9 @@ public class JobConfig {
 	@Autowired
 	private AmazonS3 s3Client;
 
+	@Autowired
+	TransactionDTO transactionDTO;
+
 	@Value("${application.bucket.name}")
 	private String bucketName;
 
@@ -59,44 +84,72 @@ public class JobConfig {
 	@Value("${cloud.aws.region.static}")
 	private String region;
 
+	@Value("${cloud.aws.credentials.access-key}")
+	private String key;
+
 	@Autowired
 	ILogService logService;
 
 	@Bean
 	public ItemReader<TCR00> itemReader() throws MalformedURLException {
 
-		LineMapper<TCR00> transactionLineMapper = createTransactionLineMapper();
+		try {
+			LineMapper<TCR00> transactionLineMapper = createTransactionLineMapper();
+			UrlResource resource = null;
 
-		UrlResource resource = null;
-		Log log = null;
+			copyObject();
 
-		resource = new UrlResource("https://transac2.s3.amazonaws.com/TCR00E.txt");
+			resource = new UrlResource("https://transac2.s3.amazonaws.com/base/fullTransactionsTCR00.txt");
+			LOGGER.info(">> Se procesa archivo: {}", resource.getFilename());
 
-		//LOGGER.info(">>>>>>>>>>>>>>>>>>		Se registra log");
-		//log = logService.registerFileProcess(resource.getFilename(), resource.contentLength());
+			logService.setAsMoved(logService.registerFileProcess(resource.getFilename(), resource.contentLength()));
 
-		//Sólo funciona si archivo/objeto a leer/descargar es público
-		//resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+			S3Object s3Object = s3Client.getObject(bucketName, fileName);
+			ObjectMetadata metadata = s3Object.getObjectMetadata();
+			long contentLength = metadata.getContentLength();
+			transactionDTO.reset((int) Math.floor(contentLength / 168));
 
+			// eliminar archivo
+			deleteObject();
+
+			return new FlatFileItemReaderBuilder<TCR00>().name("dataReader").resource(resource)
+					.lineMapper(transactionLineMapper).strict(false).build();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+		// Sólo funciona si archivo/objeto a leer/descargar es público
+		// resource = new UrlResource(s3Client.getUrl(bucketName,fileName));
+
+	}
+
+	/**
+	 * Copia archivo a directorio de procesados
+	 */
+	private void copyObject() {
 		// renombrar archivo y mover archivo a directorio "procesados"
-		//String pattern = "yyyyMMdd";
-		//SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-		//String date = simpleDateFormat.format(new Date());
-		//s3Client.copyObject(bucketName, fileName, bucketName, "procesados/"+ date + "-" +fileName);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		String date = sdf.format(new Date());
+		s3Client.copyObject(bucketName, fileName, bucketName, "procesados/" + date + "-" + fileName);
+	}
 
-		//logService.setAsMoved(log);
-
-		return new FlatFileItemReaderBuilder<TCR00>()
-				.name("dataReader")
-				.resource(resource)
-				.lineMapper(transactionLineMapper)
-				.strict(false)
-				.build();
+	protected boolean deleteObject() throws IOException {
+		try {
+			LOGGER.info("## se elimina archivo");
+			s3Client.deleteObject(bucketName, fileName);
+		} catch (AmazonClientException e) {
+			LOGGER.error("Failed to delete {}", key, e);
+			return false;
+		}
+		return true;
 	}
 
 	@Bean
 	@StepScope
-	public ItemReader<Transaction> multiLineItemReader(){
+	public ItemReader<Transaction> multiLineItemReader() {
 		MultiLineTransactionItemReader reader = new MultiLineTransactionItemReader();
 		reader.setDelegate(singleItemPeekableItemReader());
 		return reader;
@@ -104,19 +157,15 @@ public class JobConfig {
 
 	@Bean
 	@StepScope
-	public SingleItemPeekableItemReader<TCR> singleItemPeekableItemReader(){
-		return new SingleItemPeekableItemReaderBuilder<TCR>()
-				.delegate(flatFileItemReader())
-				.build();
+	public SingleItemPeekableItemReader<TCR> singleItemPeekableItemReader() {
+		return new SingleItemPeekableItemReaderBuilder<TCR>().delegate(flatFileItemReader()).build();
 	}
 
 	@Bean
 	@StepScope
-	public FlatFileItemReader<TCR> flatFileItemReader(){
-		return new FlatFileItemReaderBuilder<TCR>()
-				.name("flatFileItemReader")
-				.resource(new UrlResource(s3Client.getUrl(bucketName,fileName)))
-				.lineMapper(orderFileLineMapper())
+	public FlatFileItemReader<TCR> flatFileItemReader() {
+		return new FlatFileItemReaderBuilder<TCR>().name("flatFileItemReader")
+				.resource(new UrlResource(s3Client.getUrl(bucketName, fileName))).lineMapper(orderFileLineMapper())
 				.build();
 	}
 
@@ -168,12 +217,13 @@ public class JobConfig {
 				"transactionComponentSequenceNumber", "businessFormatCode", "tokenAssuranceLevel", "reserved1",
 				"reserved2", "documentationIndicator", "memberMessageText", "specialConditionIndicator",
 				"feeProgramIndicator", "issuerCharge", "reserved3", "cardAcceptorId", "terminalId",
-				"nationalReimbursementFee", "mpeCommerceAndPaymentIndicator", "specialChargebackIndicator", "conversionDate", "reserved4",
-				"acceptanceTerminalIndicator", "prepaidCardIndicator", "serviceDevelopmentField", "avsResponseCode",
-				"authorizationSourceCode", "purchaseIdentifierFormat", "accountSelection", "installmentPaymentCount",
-				"purchaseIdentifier", "cashback", "chipConditionCode", "posEnviroment" };
+				"nationalReimbursementFee", "mpeCommerceAndPaymentIndicator", "specialChargebackIndicator",
+				"conversionDate", "reserved4", "acceptanceTerminalIndicator", "prepaidCardIndicator",
+				"serviceDevelopmentField", "avsResponseCode", "authorizationSourceCode", "purchaseIdentifierFormat",
+				"accountSelection", "installmentPaymentCount", "purchaseIdentifier", "cashback", "chipConditionCode",
+				"posEnviroment" };
 		rc.setNames(names);
-		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5,5),
+		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 5),
 				new Range(6, 7), new Range(8, 16), new Range(17, 22), new Range(23, 23), new Range(24, 73),
 				new Range(74, 75), new Range(76, 78), new Range(79, 79), new Range(80, 80), new Range(81, 95),
 				new Range(96, 103), new Range(104, 115), new Range(116, 116), new Range(117, 117), new Range(118, 121),
@@ -193,11 +243,12 @@ public class JobConfig {
 	private LineTokenizer tcr02Tokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "installmentPaymentTotalAmount", "nationalNetCountryCode", "installmentPaymentIndicator",
-				"numberOfInstallmentPayments", "installmentPaymentNumber", "installmentPaymentInterestAmount", "vatForInstallmentPaymentInterestAmount",
-				"installmentPaymentRiskAmount", "vatForInstallmentPaymentRiskAmount", "irfIndicator", "settlementIndicator", "deferredCardholderBillingDate",
-				"deferredSettlementDate", "tipAmount", "interchangeReimbursementFee", "vatNationalReimbursementFee", "promotionData",
-				"reserved" };
+				"transactionComponentSequenceNumber", "installmentPaymentTotalAmount", "nationalNetCountryCode",
+				"installmentPaymentIndicator", "numberOfInstallmentPayments", "installmentPaymentNumber",
+				"installmentPaymentInterestAmount", "vatForInstallmentPaymentInterestAmount",
+				"installmentPaymentRiskAmount", "vatForInstallmentPaymentRiskAmount", "irfIndicator",
+				"settlementIndicator", "deferredCardholderBillingDate", "deferredSettlementDate", "tipAmount",
+				"interchangeReimbursementFee", "vatNationalReimbursementFee", "promotionData", "reserved" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 16),
 				new Range(17, 19), new Range(20, 21), new Range(22, 23), new Range(24, 25), new Range(26, 37),
@@ -218,19 +269,20 @@ public class JobConfig {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
 				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
-				"reserved2", "passengerName", "departureDate", "airportCode",
-				"tripLeg1Information", "tripLeg2Information", "tripLeg3Information", "tripLeg4Information", "travelAgencyCode",
-				"travelAgencyName", "restrictedTicketIndicator", "fareBasisCodeLeg1", "fareBasisCodeLeg2", "fareBasisCodeLeg3",
-				"fareBasisCodeLeg4", "computerizedReservationSystem", "flightNumberLeg1", "flightNumberLeg2",
-				"flightNumberLeg3", "flightNumberLeg4", "creditReasonIndicator", "ticketChangeIndicator",
-				"reserved3" };
+				"reserved2", "passengerName", "departureDate", "airportCode", "tripLeg1Information",
+				"tripLeg2Information", "tripLeg3Information", "tripLeg4Information", "travelAgencyCode",
+				"travelAgencyName", "restrictedTicketIndicator", "fareBasisCodeLeg1", "fareBasisCodeLeg2",
+				"fareBasisCodeLeg3", "fareBasisCodeLeg4", "computerizedReservationSystem", "flightNumberLeg1",
+				"flightNumberLeg2", "flightNumberLeg3", "flightNumberLeg4", "creditReasonIndicator",
+				"ticketChangeIndicator", "reserved3" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
 				new Range(15, 16), new Range(17, 18), new Range(19, 26), new Range(27, 46), new Range(47, 52),
 				new Range(53, 55), new Range(56, 62), new Range(63, 69), new Range(70, 76), new Range(77, 83),
 				new Range(84, 91), new Range(92, 116), new Range(117, 117), new Range(118, 123), new Range(124, 129),
 				new Range(130, 135), new Range(136, 141), new Range(142, 145), new Range(146, 150), new Range(151, 155),
-				new Range(156, 160), new Range(161, 165), new Range(166, 166), new Range(167, 167), new Range(168, 168)};
+				new Range(156, 160), new Range(161, 165), new Range(166, 166), new Range(167, 167),
+				new Range(168, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -244,15 +296,16 @@ public class JobConfig {
 	private LineTokenizer tcr03ANTokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode","ancillaryTicketDocumentNumber",
-				"ancillaryServiceCategory1", "ancillaryServiceSubCategory1", "ancillaryServiceCategory2","ancillaryServiceSubCategory2",
-				"ancillaryServiceCategory3", "ancillaryServiceSubCategory3", "ancillaryServiceCategory4", "ancillaryServiceSubCategory4",
-				"passengerName","issuedInConnectionWithTicketNumber", "creditReasonIndicator", "reserved2"};
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
+				"ancillaryTicketDocumentNumber", "ancillaryServiceCategory1", "ancillaryServiceSubCategory1",
+				"ancillaryServiceCategory2", "ancillaryServiceSubCategory2", "ancillaryServiceCategory3",
+				"ancillaryServiceSubCategory3", "ancillaryServiceCategory4", "ancillaryServiceSubCategory4",
+				"passengerName", "issuedInConnectionWithTicketNumber", "creditReasonIndicator", "reserved2" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
 				new Range(15, 16), new Range(17, 18), new Range(19, 33), new Range(34, 37), new Range(38, 41),
 				new Range(42, 45), new Range(46, 49), new Range(50, 53), new Range(54, 57), new Range(58, 61),
-				new Range(62, 65), new Range(66, 85), new Range(86, 100), new Range(101, 101), new Range(102, 168)};
+				new Range(62, 65), new Range(66, 85), new Range(86, 100), new Range(101, 101), new Range(102, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -266,15 +319,15 @@ public class JobConfig {
 	private LineTokenizer tcr03LGTokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode","reserved2",
-				"lodgingNoShowIndicator", "lodgingExtraCharges", "reserved3","lodgingCheckInDate",
-				"dailyRoomDate", "totalTax", "prepaidExpenses", "foodBeverageCharges",
-				"folioCashAdvances","roomNights", "totalRoomTax", "reserved4"};
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
+				"reserved2", "lodgingNoShowIndicator", "lodgingExtraCharges", "reserved3", "lodgingCheckInDate",
+				"dailyRoomDate", "totalTax", "prepaidExpenses", "foodBeverageCharges", "folioCashAdvances",
+				"roomNights", "totalRoomTax", "reserved4" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
 				new Range(15, 16), new Range(17, 18), new Range(19, 26), new Range(27, 27), new Range(28, 33),
 				new Range(34, 37), new Range(38, 43), new Range(44, 55), new Range(56, 67), new Range(68, 79),
-				new Range(80, 91), new Range(92, 103), new Range(104, 105), new Range(106, 117), new Range(118, 168)};
+				new Range(80, 91), new Range(92, 103), new Range(104, 105), new Range(106, 117), new Range(118, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -288,17 +341,16 @@ public class JobConfig {
 	private LineTokenizer tcr03CATokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode", "daysRented",
-				"reserved2", "carRentalNoShowIndicator", "carRentalExtraChanges","reserved3",
-				"carRentalCheckOutDate", "dailyRentalRate", "weeklyRentalRate", "insuranceCharges",
-				"fuelCharges","carClassCode", "oneWayDropOffCharges", "renterName", "reserved4"};
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
+				"daysRented", "reserved2", "carRentalNoShowIndicator", "carRentalExtraChanges", "reserved3",
+				"carRentalCheckOutDate", "dailyRentalRate", "weeklyRentalRate", "insuranceCharges", "fuelCharges",
+				"carClassCode", "oneWayDropOffCharges", "renterName", "reserved4" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
 				new Range(15, 16), new Range(17, 18), new Range(19, 20), new Range(21, 26), new Range(27, 27),
 				new Range(28, 33), new Range(34, 37), new Range(38, 43), new Range(44, 55), new Range(56, 67),
 				new Range(68, 79), new Range(80, 91), new Range(92, 93), new Range(94, 105), new Range(106, 145),
-				new Range(146,168)
-		};
+				new Range(146, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -312,18 +364,19 @@ public class JobConfig {
 	private LineTokenizer tcr03FLTokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode", "reserved2",
-				"expandedFuelType", "typeOfPurchase", "fuelType", "unitOfMeasure", "quantity",
-				"unitCost", "grossFuelPrice", "netFuelPrice", "grossNonFuelPrice", "netNonFuelPrice",
-				"odometerReading", "vatTaxRate", "miscellaneousFuelTax", "productQualifier", "reserved3", "miscellaneousNonFuelTax",
-				"serviceType", "miscellaneousFuelTaxExemptionStatus", "miscellaneousNonFuelTaxExemptionStatus", "reserved4" };
+				"transactionComponentSequenceNumber", "reserved1", "businessApplicationID", "businessFormatCode",
+				"reserved2", "expandedFuelType", "typeOfPurchase", "fuelType", "unitOfMeasure", "quantity", "unitCost",
+				"grossFuelPrice", "netFuelPrice", "grossNonFuelPrice", "netNonFuelPrice", "odometerReading",
+				"vatTaxRate", "miscellaneousFuelTax", "productQualifier", "reserved3", "miscellaneousNonFuelTax",
+				"serviceType", "miscellaneousFuelTaxExemptionStatus", "miscellaneousNonFuelTaxExemptionStatus",
+				"reserved4" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 14),
 				new Range(15, 16), new Range(17, 18), new Range(19, 22), new Range(23, 26), new Range(27, 27),
 				new Range(28, 29), new Range(30, 30), new Range(31, 42), new Range(43, 54), new Range(55, 66),
 				new Range(67, 78), new Range(79, 90), new Range(91, 102), new Range(103, 109), new Range(110, 113),
 				new Range(114, 125), new Range(126, 131), new Range(132, 137), new Range(138, 149), new Range(150, 150),
-				new Range(151, 151), new Range(152, 152), new Range(153, 168)};
+				new Range(151, 151), new Range(152, 152), new Range(153, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -337,14 +390,14 @@ public class JobConfig {
 	private LineTokenizer tcr03CRTokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "reserved", "fastFundsIndicator", "businessFormatCode", "businessApplicationID",
-				"sourceOfFunds", "paymentReversalReasonCode", "senderReferenceNumber", "senderAccountNumber", "senderName",
-				"senderAddress", "senderCity", "senderState", "senderCountry" };
+				"transactionComponentSequenceNumber", "reserved", "fastFundsIndicator", "businessFormatCode",
+				"businessApplicationID", "sourceOfFunds", "paymentReversalReasonCode", "senderReferenceNumber",
+				"senderAccountNumber", "senderName", "senderAddress", "senderCity", "senderState", "senderCountry" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 15),
 				new Range(16, 16), new Range(17, 18), new Range(19, 20), new Range(21, 21), new Range(22, 23),
 				new Range(24, 39), new Range(40, 73), new Range(74, 103), new Range(104, 138), new Range(139, 163),
-				new Range(164, 165), new Range(166, 168)};
+				new Range(164, 165), new Range(166, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -364,7 +417,7 @@ public class JobConfig {
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 16),
 				new Range(17, 18), new Range(19, 22), new Range(23, 37), new Range(38, 39), new Range(40, 40),
-				new Range(41, 60), new Range(61, 66), new Range(67, 168)};
+				new Range(41, 60), new Range(61, 66), new Range(67, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -379,14 +432,16 @@ public class JobConfig {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
 				"transactionComponentSequenceNumber", "agentUniqueID", "reserved1", "businessFormatCode",
-				"networkIdentificationCode", "contactForInformation", "adjustmentProcessingIndicator", "messageReasonCode",
-				"surchargeAmount", "surchargeCreditDebitIndicator", "visaInternalUseOnly", "reserved2", "surchargeAmountInCardholderBillingCurrency",
-				"moneyTransferForeignExchangeFee", "paymentAccountReference", "tokenRequestorID", "reserved3" };
+				"networkIdentificationCode", "contactForInformation", "adjustmentProcessingIndicator",
+				"messageReasonCode", "surchargeAmount", "surchargeCreditDebitIndicator", "visaInternalUseOnly",
+				"reserved2", "surchargeAmountInCardholderBillingCurrency", "moneyTransferForeignExchangeFee",
+				"paymentAccountReference", "tokenRequestorID", "reserved3" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 9),
 				new Range(10, 14), new Range(15, 16), new Range(17, 20), new Range(21, 45), new Range(46, 46),
 				new Range(47, 50), new Range(51, 58), new Range(59, 60), new Range(61, 76), new Range(77, 103),
-				new Range(104, 111), new Range(112, 119), new Range(120, 148), new Range(149, 159), new Range(160, 168) };
+				new Range(104, 111), new Range(112, 119), new Range(120, 148), new Range(149, 159),
+				new Range(160, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -401,14 +456,15 @@ public class JobConfig {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
 				"transactionComponentSequenceNumber", "agentUniqueID", "reserved1", "businessFormatCode",
-				"networkIdentificationCode", "contactForInformation", "adjustmentProcessingIndicator", "messageReasonCode",
-				"disputeCondition", "vrolFinancialID", "vrolCaseNumber", "vrolBundleCaseNumber", "clientCaseNumber",
-				"disputeStatus", "surchargeAmount", "surchargeCreditDebitIndicator", "reserved2" };
+				"networkIdentificationCode", "contactForInformation", "adjustmentProcessingIndicator",
+				"messageReasonCode", "disputeCondition", "vrolFinancialID", "vrolCaseNumber", "vrolBundleCaseNumber",
+				"clientCaseNumber", "disputeStatus", "surchargeAmount", "surchargeCreditDebitIndicator", "reserved2" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 9),
 				new Range(10, 14), new Range(15, 16), new Range(17, 20), new Range(21, 45), new Range(46, 46),
 				new Range(47, 50), new Range(51, 53), new Range(54, 64), new Range(65, 74), new Range(75, 84),
-				new Range(85, 104), new Range(105, 106), new Range(107, 114), new Range(115, 116), new Range(117, 168) };
+				new Range(85, 104), new Range(105, 106), new Range(107, 114), new Range(115, 116),
+				new Range(117, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -422,13 +478,16 @@ public class JobConfig {
 	private LineTokenizer tcr05Tokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "transactionIdentifier", "authorizedAmount", "authorizationCurrencyCode",
-				"authorizationResponseCode", "validationCode", "excludedTransactionIdentifierReason", "reserved1",
-				"reserved2", "multipleClearingSequenceNumber", "multipleClearingSequenceCount", "marketSpecificAuthorizationDataIndicator", "totalAuthorizedAmount",
-				"informationIndicator", "merchantTelephoneNumber", "additionalDataIndicator", "merchantVolumeIndicator", "electronicCommerceGoodsIndicator", "merchantVerificationValue",
-				"interchangeFeeAmount", "interchangeFeeSign", "sourceCurrencyToBaseCurrencyExchangeRate", "baseCurrencyToDestinationCurrencyExchangeRate",
-				"optionalIssuerISAAmount", "productID", "programID", "dynamicCurrencyConversionIndicator",
-				"accountTypeIdentification", "spendQualifiedIndicator", "panToken", "reserved3", "cvv2ResultCode" };
+				"transactionComponentSequenceNumber", "transactionIdentifier", "authorizedAmount",
+				"authorizationCurrencyCode", "authorizationResponseCode", "validationCode",
+				"excludedTransactionIdentifierReason", "reserved1", "reserved2", "multipleClearingSequenceNumber",
+				"multipleClearingSequenceCount", "marketSpecificAuthorizationDataIndicator", "totalAuthorizedAmount",
+				"informationIndicator", "merchantTelephoneNumber", "additionalDataIndicator", "merchantVolumeIndicator",
+				"electronicCommerceGoodsIndicator", "merchantVerificationValue", "interchangeFeeAmount",
+				"interchangeFeeSign", "sourceCurrencyToBaseCurrencyExchangeRate",
+				"baseCurrencyToDestinationCurrencyExchangeRate", "optionalIssuerISAAmount", "productID", "programID",
+				"dynamicCurrencyConversionIndicator", "accountTypeIdentification", "spendQualifiedIndicator",
+				"panToken", "reserved3", "cvv2ResultCode" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 19),
 				new Range(20, 31), new Range(32, 34), new Range(35, 36), new Range(37, 40), new Range(41, 41),
@@ -436,7 +495,8 @@ public class JobConfig {
 				new Range(50, 61), new Range(62, 62), new Range(63, 76), new Range(77, 77), new Range(78, 79),
 				new Range(80, 81), new Range(82, 91), new Range(92, 106), new Range(107, 107), new Range(108, 115),
 				new Range(116, 123), new Range(124, 135), new Range(136, 137), new Range(138, 143), new Range(144, 144),
-				new Range(145, 148), new Range(149, 149), new Range(150, 165), new Range(166, 167), new Range(168, 168)};
+				new Range(145, 148), new Range(149, 149), new Range(150, 165), new Range(166, 167),
+				new Range(168, 168) };
 		rc.setColumns(ranges);
 		return rc;
 	}
@@ -451,11 +511,11 @@ public class JobConfig {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
 				"transactionComponentSequenceNumber", "localTax", "localTaxIncluded", "nationalTax",
-				"nationalTaxIncluded", "merchantVATRegistrationSingleBusinessReferenceNumber", "customerVATRegistrationNumber", "reserved1",
-				"summaryCommodityCode", "otherTax", "messageIdentifier", "timeOfPurchase", "customerReferenceIdentifier",
-				"nonFuelProductCode1", "nonFuelProductCode2", "nonFuelProductCode3", "nonFuelProductCode4", "nonFuelProductCode5",
-				"nonFuelProductCode6", "nonFuelProductCode7", "nonFuelProductCode8", "merchantPostalCode",
-				"reserved2" };
+				"nationalTaxIncluded", "merchantVATRegistrationSingleBusinessReferenceNumber",
+				"customerVATRegistrationNumber", "reserved1", "summaryCommodityCode", "otherTax", "messageIdentifier",
+				"timeOfPurchase", "customerReferenceIdentifier", "nonFuelProductCode1", "nonFuelProductCode2",
+				"nonFuelProductCode3", "nonFuelProductCode4", "nonFuelProductCode5", "nonFuelProductCode6",
+				"nonFuelProductCode7", "nonFuelProductCode8", "merchantPostalCode", "reserved2" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 16),
 				new Range(17, 17), new Range(18, 29), new Range(30, 30), new Range(31, 50), new Range(51, 63),
@@ -476,12 +536,13 @@ public class JobConfig {
 	private LineTokenizer tcr07Tokenizer() {
 		FixedLengthTokenizer rc = new FixedLengthTokenizer();
 		String[] names = new String[] { "transactionCode", "transactionCodeQualifier",
-				"transactionComponentSequenceNumber", "transactionType", "cardSequenceNumber", "terminalTransactionDate",
-				"terminalCapabilityProfile", "terminalCountryCode", "terminalSerialNumber", "unpredictableNumber",
-				"applicationTransactionCounter", "applicationInterchangeProfile", "cryptogram", "issuerApplicationDataByte2", "issuerApplicationDataByte3",
-				"terminalVerificationResults", "issuerApplicationDataByte4To7", "cryptogramAmount", "issuerApplicationDataByte8", "issuerApplicationDataByte9To16",
-				"issuerApplicationDataByte1", "issuerApplicationDataByte17", "issuerApplicationDataByte18To32", "formFactorIndicator",
-				"issuerScript1Results" };
+				"transactionComponentSequenceNumber", "transactionType", "cardSequenceNumber",
+				"terminalTransactionDate", "terminalCapabilityProfile", "terminalCountryCode", "terminalSerialNumber",
+				"unpredictableNumber", "applicationTransactionCounter", "applicationInterchangeProfile", "cryptogram",
+				"issuerApplicationDataByte2", "issuerApplicationDataByte3", "terminalVerificationResults",
+				"issuerApplicationDataByte4To7", "cryptogramAmount", "issuerApplicationDataByte8",
+				"issuerApplicationDataByte9To16", "issuerApplicationDataByte1", "issuerApplicationDataByte17",
+				"issuerApplicationDataByte18To32", "formFactorIndicator", "issuerScript1Results" };
 		rc.setNames(names);
 		Range[] ranges = new Range[] { new Range(1, 2), new Range(3, 3), new Range(4, 4), new Range(5, 6),
 				new Range(7, 9), new Range(10, 15), new Range(16, 21), new Range(22, 24), new Range(25, 32),
@@ -499,7 +560,7 @@ public class JobConfig {
 		return studentInformationMapper;
 	}
 
-	private PatternMatchingCompositeLineMapper<TCR> orderFileLineMapper(){
+	private PatternMatchingCompositeLineMapper<TCR> orderFileLineMapper() {
 		PatternMatchingCompositeLineMapper lineMapper = new PatternMatchingCompositeLineMapper<>();
 
 		Map<String, LineTokenizer> tokenizers = new HashMap<>();
@@ -544,27 +605,19 @@ public class JobConfig {
 	}
 
 	@Bean
-	public ItemWriter<Transaction> transactionItemWriter(){
+	public ItemWriter<Transaction> transactionItemWriter() {
 		return new TransactionLoggingItemWriter();
 	}
 
 	@Bean
 	public Step exampleJobStep() {
-		return stepBuilderFactory
-				.get("exampleJobStep")
-				.<Transaction, Transaction>chunk(1)
-				.reader(multiLineItemReader())
-				.writer(transactionItemWriter())
-				.build();
+		return stepBuilderFactory.get("exampleJobStep").<Transaction, Transaction>chunk(1).reader(multiLineItemReader())
+				.writer(transactionItemWriter()).build();
 	}
 
 	@Bean
 	public Job exampleJob() {
-		return jobBuilderFactory
-				.get("exampleJob")
-				.incrementer(new RunIdIncrementer())
-				.flow(exampleJobStep())
-				.end()
+		return jobBuilderFactory.get("exampleJob").incrementer(new RunIdIncrementer()).flow(exampleJobStep()).end()
 				.build();
 	}
 }
